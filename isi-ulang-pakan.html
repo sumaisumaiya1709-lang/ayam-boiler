@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartFarm IoT — Isi Ulang Pakan</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/isi-ulang-pakan.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar center-title">
+    <button class="icon-btn" data-back="monitoring.html" aria-label="Kembali">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <span class="topbar-title">Isi Ulang Pakan</span>
+  </header>
+
+  <main class="page-content">
+
+    <div class="silo-illustration">
+      <svg viewBox="0 0 140 150" width="140" height="150" aria-hidden="true">
+        <path d="M30 10h80l-14 30H44Z" fill="#3E9C6C"/>
+        <rect x="38" y="40" width="64" height="46" rx="6" fill="#54B37E"/>
+        <rect x="46" y="50" width="48" height="10" rx="3" fill="#DFF3E3"/>
+        <path d="M38 86h64l-10 28a10 10 0 0 1-9.6 7H57.6A10 10 0 0 1 48 114Z" fill="#2F8058"/>
+        <rect x="20" y="118" width="100" height="14" rx="5" fill="#EFA92A"/>
+        <circle cx="70" cy="125" r="4" fill="#fff"/>
+      </svg>
+    </div>
+
+    <div class="card level-card">
+      <div class="flex-between" style="margin-bottom:12px;">
+        <span class="muted" style="font-size:13px;">Sisa Pakan Saat Ini</span>
+        <span class="badge badge-orange" id="levelBadge">Hampir Habis</span>
+      </div>
+      <div class="level-value" id="levelValue">30%</div>
+      <div class="level-bar-track">
+        <div class="level-bar-fill" id="levelBarFill"></div>
+      </div>
+      <p class="level-estimate" id="levelEstimate">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span id="levelEstimateText">Perkiraan Habis: 1 hari lagi</span>
+      </p>
+    </div>
+
+    <div class="card tambah-card">
+      <strong>Tambah Pakan</strong>
+      <p class="muted" style="font-size:12.5px; margin-bottom:16px;">Masukkan jumlah pakan yang akan diisi</p>
+      <div class="stepper big-stepper" id="isiStepper">
+        <button class="step-btn" data-step="dec" aria-label="Kurangi jumlah">−</button>
+        <span data-step="value">10 kg</span>
+        <button class="step-btn primary" data-step="inc" data-unit="kg" aria-label="Tambah jumlah">+</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="konfirmasiBtn" style="margin-top:20px;">Konfirmasi Isi Pakan</button>
+
+    <div class="info-banner" style="margin-top:16px;">
+      <span class="info-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <p><strong>Pastikan pakan terisi dengan benar</strong>Sistem akan memperbarui stok pakan secara otomatis</p>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      <span>Beranda</span>
+    </a>
+    <a class="nav-item active" href="monitoring.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2 7L13 4.5 15.2 12H21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Monitoring</span>
+    </a>
+    <a class="nav-item" href="riwayat.html">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/isi-ulang-pakan.js"></script>
+</body>
+</html>

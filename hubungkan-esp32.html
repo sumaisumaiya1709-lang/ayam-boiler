@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartFarm IoT - Hubungkan ESP32</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/hardware.css">
+<link rel="stylesheet" href="css/hubungkan-esp32.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar center-title">
+    <button class="icon-btn" type="button" data-back="index.html" aria-label="Kembali">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <span class="topbar-title">Hubungkan ESP32</span>
+    <span class="icon-btn spacer" aria-hidden="true"></span>
+  </header>
+
+  <main class="page-content connect-page">
+    <section class="connect-intro">
+      <span class="control-ico ico-green connect-intro-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.8"/><path d="M9 4V2M15 4V2M9 22v-2M15 22v-2M4 9H2M4 15H2M22 9h-2M22 15h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <div>
+        <h1>Penaut ESP32</h1>
+        <p>Hubungkan SmartFarm ke controller melalui WebSocket.</p>
+      </div>
+    </section>
+
+    <section class="card connection-card">
+      <div class="connection-status-row">
+        <div>
+          <span class="muted small-label">Status koneksi</span>
+          <strong id="connectionStatus">Tidak terhubung</strong>
+        </div>
+        <span class="hw-pill off" id="connectionPill"><span class="hw-dot"></span><span id="connectionPillText">Offline</span></span>
+      </div>
+
+      <form id="connectionForm">
+        <label class="field-label" for="wsUrl">Alamat WebSocket ESP32</label>
+        <input class="text-input" id="wsUrl" name="wsUrl" type="url" inputmode="url" autocomplete="off" placeholder="ws://192.168.4.1:81" required>
+        <p class="field-help">Contoh: <strong>ws://192.168.4.1:81</strong> atau alamat WebSocket dari firmware ESP32.</p>
+        <button class="btn btn-primary" id="connectButton" type="submit">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 12h8M13 7l5 5-5 5M5 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Hubungkan ke ESP32
+        </button>
+        <button class="btn btn-outline" id="disconnectButton" type="button" hidden>Putuskan koneksi</button>
+      </form>
+    </section>
+
+    <section class="card packet-card">
+      <div class="section-heading-row">
+        <div>
+          <h2>Aktivitas koneksi</h2>
+          <p class="muted">Pesan WebSocket terbaru</p>
+        </div>
+        <span class="badge badge-blue" id="packetCount">0 pesan</span>
+      </div>
+      <ul class="packet-log" id="packetLog" aria-live="polite">
+        <li class="packet-empty">Belum ada aktivitas koneksi.</li>
+      </ul>
+    </section>
+
+    <div class="info-banner connect-info">
+      <span class="info-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 10v6M12 7.5v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <p><strong>Pastikan ESP32 siap</strong>ESP32 harus menjalankan server WebSocket dan berada di jaringan yang dapat dijangkau perangkat ini.</p>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg><span>Home</span></a>
+    <a class="nav-item" href="monitoring.html"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2 7L13 4.5 15.2 12H21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><span>Monitoring</span></a>
+    <a class="nav-item" href="riwayat.html"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Riwayat</span></a>
+  </nav>
+</div>
+<script src="js/shared.js"></script>
+<script src="js/hardware.js"></script>
+<script src="js/hubungkan-esp32.js"></script>
+</body>
+</html>

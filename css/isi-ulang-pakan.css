@@ -1,0 +1,45 @@
+/* =========================================================
+   SmartFarm IoT — Gaya khusus Halaman Isi Ulang Pakan
+   ========================================================= */
+
+.silo-illustration{
+  display:flex; justify-content:center;
+  margin-bottom:18px;
+}
+.silo-illustration svg{
+  filter:drop-shadow(0 10px 18px rgba(46,139,87,.25));
+}
+
+.level-card{ margin-bottom:14px; }
+.level-value{
+  font-size:38px; font-weight:800;
+  color:var(--orange);
+  margin-bottom:12px;
+}
+.level-value.ok{ color:var(--green-700); }
+.level-bar-track{
+  width:100%; height:10px;
+  background:#EFEFEF;
+  border-radius:var(--r-pill);
+  overflow:hidden;
+  margin-bottom:12px;
+}
+.level-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,#FF8A5B,var(--orange));
+  border-radius:var(--r-pill);
+  transition:width .5s ease, background .3s ease;
+}
+.level-bar-fill.ok{ background:linear-gradient(90deg,#2F9463,var(--green-700)); }
+.level-estimate{
+  display:flex; align-items:center; gap:6px;
+  font-size:12.5px; font-weight:600;
+  color:var(--orange);
+}
+.level-estimate.ok{ color:var(--green-700); }
+
+.tambah-card strong{ font-size:15px; }
+
+.big-stepper{ justify-content:center; gap:26px; }
+.big-stepper span{ font-size:22px; min-width:80px; }
+.big-stepper .step-btn{ width:46px; height:46px; font-size:22px; }

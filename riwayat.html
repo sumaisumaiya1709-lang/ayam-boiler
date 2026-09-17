@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartFarm IoT — Riwayat</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/riwayat.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar">
+    <span class="topbar-title" style="font-size:22px;">Riwayat</span>
+  </header>
+
+  <main class="page-content">
+
+    <div class="info-banner" style="margin-bottom:18px;">
+      <span class="info-ico">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M7 3h8l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h6M9 16h6M9 8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <p>Riwayat sistem pakan dan pencahayaan secara otomatis maupun manual.</p>
+    </div>
+
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab active" data-filter="Semua">Semua</button>
+      <button class="filter-tab" data-filter="Pakan">Pakan</button>
+      <button class="filter-tab" data-filter="Lampu">Lampu</button>
+      <button class="filter-tab" data-filter="Sistem">Sistem</button>
+    </div>
+
+    <ul class="riwayat-list card" id="riwayatList" style="padding:6px 18px;"></ul>
+
+    <p class="muted empty-state" id="emptyState" style="display:none; text-align:center; padding:30px 0;">Tidak ada riwayat untuk filter ini.</p>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item" href="monitoring.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2 7L13 4.5 15.2 12H21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Monitoring</span>
+    </a>
+    <a class="nav-item active" href="riwayat.html">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/hardware.js"></script>
+<script src="js/automation.js"></script>
+<script src="js/riwayat.js"></script>
+</body>
+</html>

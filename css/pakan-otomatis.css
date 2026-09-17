@@ -1,0 +1,88 @@
+/* =========================================================
+   SmartFarm IoT — Gaya khusus Halaman Pakan Otomatis
+   ========================================================= */
+
+.feeder-hero{
+  position:relative;
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  height:190px;
+  box-shadow:0 10px 26px rgba(27,94,75,.18);
+  margin-bottom:18px;
+}
+.feeder-hero::before{
+  content:'';
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:70px;
+  background:linear-gradient(180deg, rgba(18,36,29,0) 0%, rgba(10,22,17,.75) 100%);
+  pointer-events:none;
+  z-index:1;
+}
+.feeder-svg{ width:100%; height:100%; display:block; }
+.feeder-badge{
+  position:absolute; top:14px; left:14px;
+  background:rgba(255,255,255,.94);
+  z-index:2;
+}
+.feeder-caption{
+  position:absolute; left:16px; bottom:14px;
+  display:flex; flex-direction:column; gap:2px;
+  color:#fff;
+  z-index:2;
+}
+.feeder-caption strong{ font-size:17px; font-weight:800; }
+.feeder-caption span{ font-size:12px; opacity:.85; }
+
+.status-row{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:22px;
+}
+.status-dot{ width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px rgba(46,139,87,.18); }
+.status-dot.off{ background:#B7BFBB; box-shadow:0 0 0 3px rgba(183,191,187,.25); }
+
+.slot-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+.slot{
+  padding:14px 0;
+  border-radius:var(--r-md);
+  border:1.5px solid var(--border);
+  background:var(--white);
+  font-weight:700;
+  font-size:14.5px;
+  color:var(--text);
+  cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.slot.active{
+  background:linear-gradient(180deg,#2F9463,var(--green-700));
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 8px 18px rgba(46,139,87,.25);
+}
+
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.mini-card{ display:flex; flex-direction:column; gap:6px; padding:14px 16px; }
+.mini-card strong{ font-size:14.5px; color:var(--green-dark); }
+
+.feed-history{ display:flex; flex-direction:column; gap:12px; }
+.feed-history li{
+  background:var(--white);
+  border-radius:var(--r-md);
+  padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:var(--shadow-card);
+}
+.feed-history .fh-left{ display:flex; align-items:center; gap:12px; }
+.feed-history .fh-icon{
+  width:32px; height:32px; border-radius:50%;
+  background:var(--badge-bg); color:var(--green-700);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.feed-history strong{ font-size:13.5px; display:block; }
+.feed-history span.sub{ font-size:12px; color:var(--text-muted); }

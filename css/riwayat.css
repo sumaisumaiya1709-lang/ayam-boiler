@@ -1,0 +1,58 @@
+/* =========================================================
+   SmartFarm IoT — Gaya khusus Halaman Riwayat
+   ========================================================= */
+
+.filter-tabs{
+  display:flex; gap:8px; flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.filter-tab{
+  flex:1 1 auto;
+  text-align:center;
+  padding:9px 10px;
+  border-radius:var(--r-pill);
+  border:1.5px solid transparent;
+  background:var(--white);
+  color:var(--text);
+  font-weight:700;
+  font-size:12.5px;
+  box-shadow:var(--shadow-card);
+  cursor:pointer;
+  transition:background .18s ease, color .18s ease;
+}
+.filter-tab.active{
+  background:linear-gradient(180deg,#2F9463,var(--green-700));
+  color:#fff;
+  box-shadow:0 8px 18px rgba(46,139,87,.25);
+}
+
+.riwayat-list{ display:flex; flex-direction:column; }
+.riwayat-item{
+  display:flex; align-items:center; gap:12px;
+  padding:16px 0;
+  border-bottom:1px solid var(--border);
+}
+.riwayat-item:last-child{ border-bottom:none; }
+.riwayat-main{ flex:1; min-width:0; }
+.riwayat-title{
+  display:flex; align-items:center; gap:6px;
+  font-size:14px; font-weight:800;
+  margin-bottom:4px;
+}
+.riwayat-title .sep{ color:var(--text-soft); font-weight:400; font-size:12px; }
+.riwayat-title .time{ font-weight:600; color:var(--text-muted); font-size:12.5px; }
+.riwayat-meta{ display:flex; align-items:center; gap:8px; }
+.riwayat-date{ font-size:12px; color:var(--text-muted); }
+.mode-pill{
+  font-size:11px; font-weight:700;
+  padding:3px 9px;
+  border-radius:var(--r-pill);
+}
+.mode-otomatis{ background:var(--badge-bg); color:var(--green-700); }
+.mode-manual{ background:var(--blue-bg); color:var(--blue); }
+.riwayat-status{
+  display:flex; align-items:center; gap:5px;
+  font-size:12.5px; font-weight:700;
+  color:var(--green-700);
+  flex-shrink:0;
+}

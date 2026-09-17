@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartFarm IoT — Beranda</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/hardware.css">
+<link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar center-title">
+    <span class="topbar-title">🐔 SmartFarm IoT</span>
+  </header>
+
+  <main class="page-content">
+
+    <section class="welcome-card">
+      <h1 id="greeting">Selamat Pagi, Admin! 👋</h1>
+      <p>Pantau dan kendalikan sistem peternakan ayam secara real-time.</p>
+
+      <div class="hero-banner" id="heroBanner">
+        <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" class="hero-svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#F6C87A"/>
+              <stop offset="1" stop-color="#F2A65A"/>
+            </linearGradient>
+            <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#8FBF6B"/>
+              <stop offset="1" stop-color="#5FA24B"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="190" fill="url(#skyGrad)"/>
+          <circle cx="330" cy="40" r="26" fill="#FFE3A8" opacity=".9"/>
+          <ellipse cx="60" cy="45" rx="34" ry="14" fill="#fff" opacity=".85"/>
+          <ellipse cx="90" cy="38" rx="26" ry="12" fill="#fff" opacity=".85"/>
+          <ellipse cx="300" cy="70" rx="30" ry="12" fill="#fff" opacity=".7"/>
+          <path d="M0 130 Q100 105 200 128 T400 122 V190 H0 Z" fill="url(#groundGrad)"/>
+          <path d="M0 150 Q120 132 240 150 T400 145 V190 H0 Z" fill="#4E9142"/>
+          <!-- feeder machine -->
+          <g transform="translate(228,68)">
+            <rect x="0" y="0" width="58" height="70" rx="8" fill="#E9EDF1"/>
+            <rect x="6" y="8" width="46" height="30" rx="5" fill="#3B6FA0"/>
+            <circle cx="29" cy="23" r="9" fill="#DDEBF7"/>
+            <rect x="10" y="44" width="38" height="20" rx="3" fill="#C7CFD6"/>
+            <rect x="-6" y="-22" width="70" height="30" rx="6" fill="#D8B98A"/>
+            <rect x="2" y="-30" width="54" height="10" rx="4" fill="#BFA073"/>
+          </g>
+          <!-- chicken -->
+          <g transform="translate(120,96)">
+            <ellipse cx="30" cy="46" rx="30" ry="20" fill="#FBFBF6"/>
+            <circle cx="52" cy="24" r="16" fill="#FBFBF6"/>
+            <path d="M52 10 q6 -10 12 -2 q-4 4 -8 8Z" fill="#E4483B"/>
+            <path d="M66 22 l10 4 -10 5Z" fill="#EFA92A"/>
+            <circle cx="56" cy="21" r="2" fill="#2b2b2b"/>
+            <path d="M6 40 q-10 4 -14 14 q10 0 16 -6Z" fill="#FBFBF6"/>
+            <path d="M18 60 l-4 10M30 62 l0 10M42 60 l4 10" stroke="#EFA92A" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <ellipse cx="335" cy="150" rx="6" ry="3.5" fill="#EFA92A" opacity=".8"/>
+          <ellipse cx="352" cy="158" rx="6" ry="3.5" fill="#EFA92A" opacity=".8"/>
+          <ellipse cx="20" cy="160" rx="6" ry="3.5" fill="#EFA92A" opacity=".8"/>
+        </svg>
+
+        <div class="hero-status">
+          <span class="dot-live" id="heroDot"></span>
+          <span id="heroStatusText">Sistem Online</span>
+          <span class="hero-sep">|</span>
+          <span id="heroHwText">ESP32 Terhubung</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card hw-card" id="hwCard">
+      <div class="hw-head">
+        <div class="hw-head-left">
+          <span class="control-ico ico-green" id="hwIcon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.8"/><path d="M9 4V2M15 4V2M9 22v-2M15 22v-2M4 9H2M4 15H2M22 9h-2M22 15h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          <div style="min-width:0;">
+            <div class="hw-title">Koneksi Hardware</div>
+            <div class="hw-sub" id="hwSubText">ESP32 SmartFarm Controller</div>
+          </div>
+        </div>
+        <span class="hw-pill on" id="hwPill"><span class="hw-dot"></span><span id="hwPillText">Terhubung</span></span>
+      </div>
+
+      <div class="hw-sensor-grid">
+        <div class="hw-sensor-item on" id="hwSensorPakan">
+          <span class="hw-dot"></span>
+          <div class="hw-sensor-text"><span>HC-SR04 Pakan</span><strong id="hwSensorPakanText">Aktif</strong></div>
+        </div>
+        <div class="hw-sensor-item on" id="hwSensorCahaya">
+          <span class="hw-dot"></span>
+          <div class="hw-sensor-text"><span>Sistem Otomatis</span><strong id="hwSensorOtomatisText">Aktif</strong></div>
+        </div>
+      </div>
+
+      <div class="hw-meta">
+        <span id="hwLastSeen">Data terakhir: baru saja</span>
+        <a class="hw-manage-link" href="hubungkan-esp32.html">Atur koneksi</a>
+      </div>
+
+      <button class="hw-connect-btn" id="hwConnectBtn" hidden>Hubungkan Hardware</button>
+    </section>
+
+    <div class="warning-banner" id="hwWarningBanner" hidden>
+      <span class="info-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <p><strong>Hardware belum terhubung</strong>Hubungkan hardware terlebih dahulu untuk menjalankan sistem otomatis.</p>
+    </div>
+
+    <h2 class="section-title">Kontrol Utama</h2>
+    <div class="control-grid">
+      <a class="control-card" href="pakan-otomatis.html">
+        <div class="control-top">
+          <span class="control-ico ico-green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9h18l-1.6 9.6A2 2 0 0 1 17.43 20H6.57a2 2 0 0 1-1.97-1.4L3 9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 9a5 5 0 0 1 10 0" stroke="currentColor" stroke-width="1.8"/></svg>
+          </span>
+          <span class="badge badge-green" id="badgePakan"><span class="badge-dot"></span>Aktif</span>
+        </div>
+        <h3>Pakan Otomatis</h3>
+        <p class="muted" id="jadwalPakanText">Jadwal: 12:00 WIB</p>
+        <div class="control-status">
+          <span class="muted">Status</span>
+          <button class="switch" data-key="pakanOtomatis" data-nav-stop></button>
+        </div>
+      </a>
+
+      <a class="control-card" href="lampu-otomatis.html">
+        <div class="control-top">
+          <span class="control-ico ico-yellow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.45 1.1 1.24 1.1 2.05V16h5v-.15c0-.81.5-1.6 1.1-2.05A6 6 0 0 0 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="badge badge-green" id="badgeLampu"><span class="badge-dot"></span>Aktif</span>
+        </div>
+        <h3>Pencahayaan</h3>
+        <p class="muted" id="jadwalLampuText">Mulai: 18:00 WIB</p>
+        <div class="control-status">
+          <span class="muted">Status</span>
+          <button class="switch" data-key="lampuOtomatis" data-nav-stop></button>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">Ringkasan Aktivitas Hari Ini</h2>
+    <div class="summary-list">
+      <div class="summary-item">
+        <span class="control-ico ico-green">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M3 9h18l-1.6 9.6A2 2 0 0 1 17.43 20H6.57a2 2 0 0 1-1.97-1.4L3 9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M7 9a5 5 0 0 1 10 0" stroke="currentColor" stroke-width="1.7"/></svg>
+        </span>
+        <div class="summary-text">
+          <span class="muted">Total Pemberian Pakan</span>
+          <strong id="totalPakanText">3 Kali Selesai</strong>
+        </div>
+      </div>
+      <div class="summary-item">
+        <span class="control-ico ico-yellow">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2.3M12 19.2v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </span>
+        <div class="summary-text">
+          <span class="muted">Durasi Pencahayaan</span>
+          <strong id="durasiLampuText">8 Jam Aktif</strong>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item active" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item" href="monitoring.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2 7L13 4.5 15.2 12H21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Monitoring</span>
+    </a>
+    <a class="nav-item" href="riwayat.html">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/hardware.js"></script>
+<script src="js/automation.js"></script>
+<script src="js/home.js"></script>
+</body>
+</html>

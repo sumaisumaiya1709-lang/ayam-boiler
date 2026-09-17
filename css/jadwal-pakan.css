@@ -1,0 +1,55 @@
+/* =========================================================
+   SmartFarm IoT — Gaya khusus Halaman Atur Jadwal Pakan
+   ========================================================= */
+
+.time-card{ margin-bottom:16px; }
+.time-picker{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.time-wheel{
+  background:var(--badge-bg);
+  border-radius:var(--r-md);
+  display:flex; flex-direction:column; align-items:center;
+  padding:10px 20px;
+  gap:6px;
+  min-width:84px;
+}
+.time-wheel button{
+  width:30px; height:30px;
+  border-radius:50%;
+  border:none;
+  background:#fff;
+  color:var(--green-700);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+.time-wheel button:active{ transform:scale(.9); }
+.time-value{
+  font-size:34px; font-weight:800; color:var(--green-dark);
+  min-width:56px; text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.colon{ font-size:28px; font-weight:800; color:var(--text-soft); }
+.ampm-col{ display:flex; flex-direction:column; gap:8px; }
+.ampm-btn{
+  padding:8px 16px;
+  border-radius:var(--r-pill);
+  border:none;
+  background:#E7EDEA;
+  color:var(--text-muted);
+  font-weight:700; font-size:12.5px;
+  cursor:pointer;
+}
+.ampm-btn.active{
+  background:linear-gradient(180deg,#2F9463,var(--green-700));
+  color:#fff;
+}
+
+.takaran-row, .ulangi-row{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px;
+}
+.takaran-row strong, .ulangi-row strong{ font-size:14.5px; }
+
+.stepper span{ font-size:16px; font-weight:800; min-width:64px; text-align:center; }

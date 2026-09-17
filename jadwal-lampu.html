@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartFarm IoT — Atur Jadwal Lampu</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/jadwal-lampu.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar center-title">
+    <button class="icon-btn" data-back="lampu-otomatis.html" aria-label="Kembali">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <span class="topbar-title">Atur Jadwal</span>
+    <button class="icon-btn" id="moreBtn" aria-label="Opsi lainnya" style="margin-left:auto;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></svg>
+    </button>
+  </header>
+
+  <main class="page-content">
+
+    <div class="segmented" id="modeSegment">
+      <button class="seg-btn active" data-mode="Otomatis">Otomatis</button>
+      <button class="seg-btn" data-mode="Manual">Manual</button>
+    </div>
+
+    <div class="two-col" style="margin-bottom:14px;">
+      <div class="card time-box">
+        <span class="time-box-label">WAKTU NYALA</span>
+        <strong id="nyalaVal">18:00</strong>
+        <span class="unit">WIB</span>
+        <button class="ubah-btn" data-target="nyala">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="m16.5 3.5 4 4L8 20H4v-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          Ubah
+        </button>
+      </div>
+      <div class="card time-box">
+        <span class="time-box-label">WAKTU MATI</span>
+        <strong id="matiVal">06:00</strong>
+        <span class="unit">WIB</span>
+        <button class="ubah-btn" data-target="mati">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="m16.5 3.5 4 4L8 20H4v-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          Ubah
+        </button>
+      </div>
+    </div>
+
+    <div class="card kecerahan-card">
+      <div class="flex-between" style="margin-bottom:12px;">
+        <span style="font-weight:800; font-size:13.5px;">KECERAHAN LAMPU</span>
+        <strong id="kecerahanVal" style="color:var(--green-700);">75%</strong>
+      </div>
+      <input type="range" min="0" max="100" value="75" class="brightness-slider" id="brightnessSlider2">
+    </div>
+
+    <h2 class="section-title">Hari Aktif</h2>
+    <div class="day-pills" id="dayPills2">
+      <button class="day-pill" data-day="Sen">Sen</button>
+      <button class="day-pill" data-day="Sel">Sel</button>
+      <button class="day-pill" data-day="Rab">Rab</button>
+      <button class="day-pill" data-day="Kam">Kam</button>
+      <button class="day-pill" data-day="Jum">Jum</button>
+      <button class="day-pill" data-day="Sab">Sab</button>
+      <button class="day-pill" data-day="Min">Min</button>
+    </div>
+
+    <div class="info-banner" style="margin-top:18px;">
+      <span class="info-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <p><strong>Informasi Konsumsi</strong>Jadwal ini menghemat daya hingga 20%</p>
+    </div>
+
+    <button class="btn btn-primary" id="simpanLampuBtn" style="margin-top:20px;">Simpan Perubahan</button>
+
+    <!-- Inline time editor (revealed when "Ubah" tapped) -->
+    <div class="time-editor" id="timeEditor" hidden>
+      <div class="card">
+        <p class="muted" id="editorLabel" style="margin-bottom:10px; font-size:13px;">Ubah Waktu Nyala</p>
+        <div class="editor-row">
+          <button class="step-btn" id="editorDec">−</button>
+          <input type="time" id="editorInput" class="editor-input">
+          <button class="step-btn primary" id="editorInc">+</button>
+        </div>
+        <button class="btn btn-outline" id="editorClose" style="margin-top:14px;">Selesai</button>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      <span>Beranda</span>
+    </a>
+    <a class="nav-item active" href="monitoring.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2 7L13 4.5 15.2 12H21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Monitoring</span>
+    </a>
+    <a class="nav-item" href="riwayat.html">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/jadwal-lampu.js"></script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartFarm IoT — Monitoring</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/hardware.css">
+<link rel="stylesheet" href="css/monitoring.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar">
+    <span class="topbar-title" style="font-size:22px;">Monitoring</span>
+  </header>
+
+  <main class="page-content">
+
+    <section class="card hw-card" id="hwCard">
+      <div class="hw-head">
+        <div class="hw-head-left">
+          <span class="control-ico ico-green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.8"/><path d="M9 4V2M15 4V2M9 22v-2M15 22v-2M4 9H2M4 15H2M22 9h-2M22 15h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          <div style="min-width:0;">
+            <div class="hw-title">Status Hardware</div>
+            <div class="hw-sub" id="hwSubText">ESP32 SmartFarm Controller</div>
+          </div>
+        </div>
+        <span class="hw-pill on" id="hwPill"><span class="hw-dot"></span><span id="hwPillText">Terhubung</span></span>
+      </div>
+
+      <div class="hw-sensor-grid">
+        <div class="hw-sensor-item on" id="hwSensorPakan">
+          <span class="hw-dot"></span>
+          <div class="hw-sensor-text"><span>HC-SR04 Pakan</span><strong id="hwSensorPakanText">Aktif</strong></div>
+        </div>
+        <div class="hw-sensor-item on" id="hwSensorCahaya">
+          <span class="hw-dot"></span>
+          <div class="hw-sensor-text"><span>Sensor Cahaya</span><strong id="hwSensorCahayaText">Terang</strong></div>
+        </div>
+      </div>
+
+      <div class="hw-meta">
+        <span id="hwLastSeen">RTC DS3231: menunggu data</span>
+        <a class="hw-manage-link" href="hubungkan-esp32.html">Atur koneksi</a>
+      </div>
+
+      <button class="hw-connect-btn" id="hwConnectBtn" hidden>Coba Hubungkan Lagi</button>
+    </section>
+
+    <div class="warning-banner" id="hwWarningBanner" hidden>
+      <span class="info-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <p><strong>Hardware belum terhubung</strong>Sistem otomatis tidak dapat menjalankan perangkat sampai hardware terhubung kembali.</p>
+    </div>
+
+    <div class="device-grid">
+      <a class="device-card" href="pakan-otomatis.html">
+        <div class="row-gap">
+          <span class="status-dot" id="pakanDot"></span>
+          <span class="muted" style="font-size:12.5px;">Pakan</span>
+        </div>
+        <strong id="pakanConnText">Menunggu jadwal</strong>
+        <span class="more-link">Selengkapnya
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+      <a class="device-card" href="lampu-otomatis.html">
+        <div class="row-gap">
+          <span class="status-dot" id="lampuDot"></span>
+          <span class="muted" style="font-size:12.5px;">Lampu</span>
+        </div>
+        <strong id="lampuConnText">Mati</strong>
+        <span class="more-link">Selengkapnya
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+    </div>
+
+    <div class="device-grid" style="margin-top:12px;">
+      <div class="card mini-info-card">
+        <span class="muted" style="font-size:12px;">Jadwal Pakan Berikutnya</span>
+        <strong id="jadwalPakanBerikutnya">12:00 WIB</strong>
+      </div>
+      <div class="card mini-info-card">
+        <span class="muted" style="font-size:12px;">Jadwal Lampu</span>
+        <strong id="jadwalLampuMon">18:00–06:00</strong>
+      </div>
+    </div>
+
+    <a class="card stock-card" href="isi-ulang-pakan.html" id="stockCard">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 100 100" class="ring-svg">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#E4EFE9" stroke-width="10"/>
+          <circle id="stokRing" cx="50" cy="50" r="42" fill="none" stroke="#2E8B57" stroke-width="10"
+                  stroke-linecap="round" transform="rotate(-90 50 50)"/>
+        </svg>
+        <span class="ring-value" id="stokValue">75%</span>
+      </div>
+      <div class="stock-text">
+        <strong>Ketersediaan Pakan</strong>
+        <p class="muted" id="stokDesc">Sisa pakan mencukupi untuk 3 hari ke depan</p>
+      </div>
+    </a>
+
+    <div class="warning-banner" id="stockWarningBanner" hidden style="margin-top:12px;">
+      <span class="info-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <p><strong>Stok pakan hampir habis</strong>Silakan lakukan isi ulang segera. <a href="isi-ulang-pakan.html" style="color:#8A1F1F; font-weight:800; text-decoration:underline;">Isi Ulang</a></p>
+    </div>
+
+    <h2 class="section-title">Riwayat Aktivitas</h2>
+    <ul class="activity-list" id="activityList"></ul>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active" href="monitoring.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2 7L13 4.5 15.2 12H21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Monitoring</span>
+    </a>
+    <a class="nav-item" href="riwayat.html">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/hardware.js"></script>
+<script src="js/automation.js"></script>
+<script src="js/monitoring.js"></script>
+</body>
+</html>

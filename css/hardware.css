@@ -1,0 +1,126 @@
+/* =========================================================
+   SmartFarm IoT — Hardware status components (shared)
+   Used on: Dashboard, Monitoring, Pakan Otomatis, Lampu Otomatis
+   ========================================================= */
+
+.hw-card{ margin-bottom:16px; }
+.hw-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.hw-head-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+.hw-title{ font-size:15px; font-weight:800; color:var(--text); }
+.hw-sub{ font-size:11.5px; color:var(--text-muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.hw-pill{
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:12px; font-weight:700;
+  padding:6px 12px;
+  border-radius:var(--r-pill);
+  flex-shrink:0;
+  white-space:nowrap;
+}
+.hw-pill.on{ background:var(--badge-bg); color:var(--green-700); }
+.hw-pill.off{ background:#FDEAEA; color:#C93030; }
+.hw-pill.connecting{ background:var(--yellow-bg); color:#A46B04; }
+
+.hw-dot{ width:9px; height:9px; border-radius:50%; background:currentColor; flex-shrink:0; }
+.hw-pill.on .hw-dot{ animation:hwPulse 1.6s ease-in-out infinite; }
+
+@keyframes hwPulse{
+  0%,100%{ opacity:1; }
+  50%{ opacity:.5; }
+}
+
+.hw-sensor-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+.hw-sensor-item{
+  display:flex; align-items:center; gap:9px;
+  background:var(--bg-mint);
+  border-radius:var(--r-sm);
+  padding:10px 12px;
+  min-width:0;
+}
+.hw-sensor-item .hw-dot{ width:8px; height:8px; }
+.hw-sensor-item.off{ background:#F5F2EF; }
+.hw-sensor-item.off .hw-dot{ background:#B7BFBB; }
+.hw-sensor-item.on .hw-dot{ background:var(--green); }
+.hw-sensor-item.warn .hw-dot{ background:var(--yellow); }
+.hw-sensor-text{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.hw-sensor-text span{ font-size:10.5px; color:var(--text-muted); }
+.hw-sensor-text strong{ font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.hw-meta{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:14px;
+  font-size:11.5px; color:var(--text-soft);
+}
+.hw-manage-link{ color:var(--green-700); font-weight:700; white-space:nowrap; }
+
+.hw-connect-btn{
+  margin-top:14px;
+  width:100%;
+  padding:12px;
+  border-radius:var(--r-md);
+  border:none;
+  font-weight:700;
+  font-size:13.5px;
+  cursor:pointer;
+  background:linear-gradient(180deg,#2F9463,var(--green-700));
+  color:#fff;
+  transition:transform .12s ease, opacity .15s ease;
+}
+.hw-connect-btn:active{ transform:scale(.98); }
+.hw-connect-btn[disabled]{ opacity:.65; cursor:not-allowed; }
+
+.warning-banner{
+  display:flex; gap:12px; align-items:flex-start;
+  background:#FDEAEA;
+  border-radius:var(--r-md);
+  padding:14px 16px;
+  margin-bottom:16px;
+}
+.warning-banner[hidden]{ display:none; }
+.warning-banner .info-ico{
+  width:34px; height:34px; border-radius:50%;
+  background:#fff; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; color:#C93030;
+}
+.warning-banner p{ font-size:13px; color:#9B2626; line-height:1.45; }
+.warning-banner strong{ display:block; font-size:14px; margin-bottom:2px; color:#8A1F1F; }
+
+.proc-chip{
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:11.5px; font-weight:700;
+  padding:5px 12px; border-radius:var(--r-pill);
+  background:var(--blue-bg); color:var(--blue);
+  white-space:nowrap;
+}
+.proc-chip .hw-dot{ width:7px; height:7px; }
+.proc-chip.busy .hw-dot{ animation:hwPulse 1s ease-in-out infinite; background:var(--blue); }
+.proc-chip.ok{ background:var(--badge-bg); color:var(--green-700); }
+.proc-chip.ok .hw-dot{ background:var(--green); }
+.proc-chip.wait{ background:var(--yellow-bg); color:#A46B04; }
+.proc-chip.wait .hw-dot{ background:var(--yellow); }
+.proc-chip.err{ background:#FDEAEA; color:#C93030; }
+.proc-chip.err .hw-dot{ background:#C93030; }
+
+.sim-toggle-row{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.sim-toggle-btn{
+  flex:1;
+  min-width:80px;
+  padding:9px 8px;
+  border-radius:var(--r-sm);
+  border:1.5px solid var(--border);
+  background:#fff;
+  color:var(--text-muted);
+  font-size:11.5px;
+  font-weight:700;
+  cursor:pointer;
+}
+.sim-toggle-btn.active{
+  background:var(--green-dark);
+  color:#fff;
+  border-color:var(--green-dark);
+}

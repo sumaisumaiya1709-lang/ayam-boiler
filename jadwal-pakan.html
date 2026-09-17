@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartFarm IoT — Atur Jadwal Pakan</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/jadwal-pakan.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar center-title">
+    <button class="icon-btn" data-back="pakan-otomatis.html" aria-label="Kembali">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <span class="topbar-title">Atur Jadwal Pakan</span>
+  </header>
+
+  <main class="page-content">
+
+    <div class="card time-card">
+      <p class="muted" style="text-align:center; font-size:13px; margin-bottom:14px;">Pilih Jam Pengumpanan</p>
+      <div class="time-picker">
+        <div class="time-wheel" id="hourWheel">
+          <button data-step="dec" data-role="hour-dec" aria-label="Kurangi jam">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 12h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+          <span class="time-value" id="hourValue">12</span>
+          <button data-step="inc" data-role="hour-inc" aria-label="Tambah jam">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <span class="colon">:</span>
+        <div class="time-wheel" id="minuteWheel">
+          <button data-step="dec" data-role="min-dec" aria-label="Kurangi menit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 12h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+          <span class="time-value" id="minuteValue">00</span>
+          <button data-step="inc" data-role="min-inc" aria-label="Tambah menit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="ampm-col">
+          <button class="ampm-btn" data-ampm="PM">PM</button>
+          <button class="ampm-btn" data-ampm="AM">AM</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card takaran-row">
+      <div>
+        <strong>Takaran Pakan</strong>
+        <p class="muted" style="font-size:12px;">Saran: 500 gram per sesi</p>
+      </div>
+      <div class="stepper" id="takaranStepper">
+        <button class="step-btn" data-step="dec" aria-label="Kurangi takaran">−</button>
+        <span data-step="value">500 g</span>
+        <button class="step-btn primary" data-step="inc" data-unit="g" aria-label="Tambah takaran">+</button>
+      </div>
+    </div>
+
+    <div class="card flex-between ulangi-row">
+      <div>
+        <strong>Ulangi Jadwal</strong>
+        <p class="muted" style="font-size:12px;">Ulangi otomatis di hari terpilih</p>
+      </div>
+      <button class="switch" data-key="pakanUlangi"></button>
+    </div>
+
+    <h2 class="section-title">Hari Terpilih</h2>
+    <div class="day-pills" id="dayPills">
+      <button class="day-pill" data-day="Sen">Sen</button>
+      <button class="day-pill" data-day="Sel">Sel</button>
+      <button class="day-pill" data-day="Rab">Rab</button>
+      <button class="day-pill" data-day="Kam">Kam</button>
+      <button class="day-pill" data-day="Jum">Jum</button>
+      <button class="day-pill" data-day="Sab">Sab</button>
+      <button class="day-pill" data-day="Min">Min</button>
+    </div>
+
+    <button class="btn btn-primary" id="simpanBtn" style="margin-top:26px;">Simpan Jadwal</button>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active" href="monitoring.html">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2 7L13 4.5 15.2 12H21" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Monitoring</span>
+    </a>
+    <a class="nav-item" href="riwayat.html">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Riwayat</span>
+    </a>
+  </nav>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/jadwal-pakan.js"></script>
+</body>
+</html>
