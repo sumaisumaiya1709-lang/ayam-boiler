@@ -70,13 +70,15 @@ document.addEventListener('DOMContentLoaded', () => {
     hwConnectBtn.hidden = connected;
     hwWarningBanner.hidden = connected;
 
-    hwSensorPakan.classList.toggle('on', connected);
-    hwSensorPakan.classList.toggle('off', !connected);
-    hwSensorPakanText.textContent = connected ? 'Aktif' : 'Tidak Aktif';
+    const feedSensorReady = connected && st.sensorPakanAktif && Number.isFinite(st.feedDistanceCm);
+    hwSensorPakan.classList.toggle('on', feedSensorReady);
+    hwSensorPakan.classList.toggle('off', !feedSensorReady);
+    hwSensorPakanText.textContent = feedSensorReady ? 'Aktif' : (connected ? 'Menunggu Data' : 'Tidak Aktif');
 
-    hwSensorCahaya.classList.toggle('on', connected);
-    hwSensorCahaya.classList.toggle('off', !connected);
-    hwSensorOtomatisText.textContent = connected ? 'Aktif' : 'Standby';
+    const lightSensorReady = connected && st.sensorCahayaAktif && !!st.kondisiCahaya;
+    hwSensorCahaya.classList.toggle('on', lightSensorReady);
+    hwSensorCahaya.classList.toggle('off', !lightSensorReady);
+    hwSensorOtomatisText.textContent = lightSensorReady ? 'Aktif' : (connected ? 'Menunggu Data' : 'Standby');
 
     hwLastSeen.textContent = connected
       ? `Data terakhir: ${timeAgo(st.hardwareLastSeen)}`

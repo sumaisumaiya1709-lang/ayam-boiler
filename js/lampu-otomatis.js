@@ -1,7 +1,7 @@
 /* =========================================================
    SmartFarm IoT — Halaman Lampu Otomatis
-  Detail & kontrol lampu: durasi menyala, simulasi
-   sensor cahaya, dan tombol "Nyalakan Sekarang".
+  Detail & kontrol lampu: durasi menyala, sensor cahaya,
+  dan tombol "Nyalakan Sekarang".
    ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -42,18 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  /* Tombol simulasi sensor cahaya — berguna selama sensor LDR fisik
-     belum terpasang, supaya kondisi Gelap/Terang bisa dites kapan saja. */
-  const simBtns = document.querySelectorAll('[data-sensor]');
-  simBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      simBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      SF.set('sensorCahayaManual', btn.dataset.sensor === 'auto' ? null : btn.dataset.sensor);
-      showToast(btn.dataset.sensor === 'auto' ? 'Sensor cahaya mengikuti kondisi asli' : `Kondisi cahaya disimulasikan: ${btn.dataset.sensor}`);
-    });
-  });
-
   // Menggambar ulang seluruh tampilan halaman berdasarkan data (st) terbaru
   function render(st){
     document.getElementById('waktuNyala').textContent = `${st.lampuNyala} WIB`;
@@ -63,16 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Teks kondisi sensor cahaya: tanda hubung kalau hardware belum terhubung
     const hardwareOnline = st.hardwareStatus === 'ONLINE';
-    document.getElementById('kondisiCahayaText').textContent = hardwareOnline
-      ? (st.kondisiCahaya === 'Gelap' ? '🌙 Gelap' : '☀️ Terang')
-      : '—';
-
-    // Menandai tombol simulasi sensor mana yang sedang aktif
-    const manual = st.sensorCahayaManual;
-    simBtns.forEach(b => {
-      const isActive = (b.dataset.sensor === 'auto' && !manual) || b.dataset.sensor === manual;
-      b.classList.toggle('active', isActive);
-    });
+    document.getElementById('kondisiCahayaText').textContent = !hardwareOnline || !st.sensorCahayaAktif || !st.kondisiCahaya
+      ? '—'
+      : (st.kondisiCahaya === 'Gelap' ? '🌙 Gelap' : '☀️ Terang');
 
     /* Status FISIK lampu yang menentukan tampilan, bukan sekadar saklar mode otomatis */
     const physicallyOn = hardwareOnline && st.lampuStatus;

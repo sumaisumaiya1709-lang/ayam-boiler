@@ -43,7 +43,7 @@
 
     /* ---- Sensor cahaya: baca kondisi realtime ---- */
     const kondisi = HW.readLightSensor();
-    if(kondisi !== st.kondisiCahaya){
+    if(kondisi && kondisi !== st.kondisiCahaya){
       SF.set('kondisiCahaya', kondisi);
       SF.addAktivitas({ type:'sensor', title:`Sensor cahaya mendeteksi kondisi ${kondisi.toLowerCase()}`, time: SF.fmtJam(now) });
     }
@@ -80,7 +80,7 @@
   function evaluateLamp(st, kondisi, now){
     // Mode Manual pada jadwal lampu berarti pengguna ingin kendali penuh,
     // sistem tidak boleh menimpa keputusan pengguna.
-    if(!st.lampuOtomatis || st.lampuMode === 'Manual') return;
+    if(!st.lampuOtomatis || st.lampuMode === 'Manual' || !kondisi) return;
     if(!st.lampuHari.includes(SF.todayAbbr(now))) return;
 
     const nowHM = SF.hhmm(now);
@@ -176,10 +176,10 @@
   // Mengecek apakah stok pakan sudah menipis, lalu mengirim peringatan sekali saja
   function evaluateStock(st){
     const ambang = st.ambangStokPakan || 30;
-    if(st.stokPakan <= ambang && !st.stokWarned){
+    if(Number.isFinite(st.stokPakan) && st.stokPakan <= ambang && !st.stokWarned){
       SF.set('stokWarned', true);
       SF.addAktivitas({ type:'warning', title:'Stok pakan hampir habis, silakan lakukan isi ulang', time: SF.fmtJam() });
-    } else if(st.stokPakan > ambang && st.stokWarned){
+    } else if(Number.isFinite(st.stokPakan) && st.stokPakan > ambang && st.stokWarned){
       SF.set('stokWarned', false);
     }
   }

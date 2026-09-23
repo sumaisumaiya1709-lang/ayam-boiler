@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Menggambar ulang daftar riwayat pemberian pakan
   function renderHistory(){
     const data = SF.get('riwayatPakan');
-    document.getElementById('feedHistory').innerHTML = data.map(f => `
+    document.getElementById('feedHistory').innerHTML = data.length ? data.map(f => `
       <li>
         <div class="fh-left">
           <span class="fh-icon">
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <span class="badge badge-green">${f.status}</span>
       </li>
-    `).join('');
+    `).join('') : '<li class="muted">Belum ada riwayat pemberian pakan.</li>';
   }
 
   // Terjemahan setiap status proses pakan menjadi kelas CSS + teks yang tampil
@@ -60,9 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Menggambar ulang seluruh tampilan halaman berdasarkan data (st) terbaru
   function render(st){
-    document.getElementById('stokPersen').textContent = `${st.stokPakan}%`;
+    document.getElementById('stokPersen').textContent = Number.isFinite(st.stokPakan) ? `${st.stokPakan}%` : '--';
     document.getElementById('takaranText').textContent = `${st.pakanTakaran} g / Sesi`;
-    document.getElementById('terakhirText').textContent = st.pakanTerakhir;
+    document.getElementById('terakhirText').textContent = st.pakanTerakhir || 'Belum ada';
     refreshStatus(st.pakanOtomatis);
 
     slots.forEach(s => s.classList.toggle('active', s.dataset.time === st.pakanJadwalAktif));

@@ -84,17 +84,17 @@
             <div class="hw-sub" id="hwSubText">ESP32 SmartFarm Controller</div>
           </div>
         </div>
-        <span class="hw-pill on" id="hwPill"><span class="hw-dot"></span><span id="hwPillText">Terhubung</span></span>
+        <span class="hw-pill off" id="hwPill"><span class="hw-dot"></span><span id="hwPillText">Tidak Terhubung</span></span>
       </div>
 
       <div class="hw-sensor-grid">
-        <div class="hw-sensor-item on" id="hwSensorPakan">
+        <div class="hw-sensor-item off" id="hwSensorPakan">
           <span class="hw-dot"></span>
-          <div class="hw-sensor-text"><span>HC-SR04 Pakan</span><strong id="hwSensorPakanText">Aktif</strong></div>
+          <div class="hw-sensor-text"><span>HC-SR04 Pakan</span><strong id="hwSensorPakanText">Tidak Aktif</strong></div>
         </div>
-        <div class="hw-sensor-item on" id="hwSensorCahaya">
+        <div class="hw-sensor-item off" id="hwSensorCahaya">
           <span class="hw-dot"></span>
-          <div class="hw-sensor-text"><span>Sistem Otomatis</span><strong id="hwSensorOtomatisText">Aktif</strong></div>
+          <div class="hw-sensor-text"><span>Sistem Otomatis</span><strong id="hwSensorOtomatisText">Standby</strong></div>
         </div>
       </div>
 
@@ -154,7 +154,7 @@
         </span>
         <div class="summary-text">
           <span class="muted">Total Pemberian Pakan</span>
-          <strong id="totalPakanText">3 Kali Selesai</strong>
+          <strong id="totalPakanText">0 Kali Selesai</strong>
         </div>
       </div>
       <div class="summary-item">
@@ -187,7 +187,6 @@
 </div>
 
 <script src="js/shared.js"></script>
-<script src="js/api.js"></script>
 <script src="js/hardware.js"></script>
 <script src="js/automation.js"></script>
 <script src="js/home.js"></script>

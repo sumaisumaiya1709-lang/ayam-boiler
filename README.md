@@ -60,16 +60,16 @@ Buka halaman **Hubungkan ESP32** dari kartu hardware di Beranda atau Monitoring,
 
 RTC waktu sistem menggunakan **DS3231** dan level pakan menggunakan **HC-SR04**. Sensor tambahan bersifat opsional. `sensor_data` dapat berisi `feed_level`, `distance_cm`, `light_condition`, `lamp_status`, `temperature`, dan `humidity`. Hanya heartbeat/data dari ESP32 yang memperbarui waktu terakhir.
 
-### Simulasi sensor cahaya untuk pengujian
-Karena sensor cahaya (LDR) fisik belum terpasang, halaman **Lampu Otomatis** punya toggle "Ikuti Sensor / Paksa Gelap / Paksa Terang" (`sensorCahayaManual` di state) supaya kedua kondisi (siang & malam) bisa didemokan kapan saja tanpa menunggu waktu sungguhan. Set kembali ke "Ikuti Sensor" agar otomasi memakai jam sistem seperti sensor asli.
+### Sensor cahaya
+Halaman **Lampu Otomatis** hanya menampilkan kondisi LDR yang benar-benar dikirim ESP32. Sebelum paket sensor cahaya diterima, nilainya ditampilkan sebagai `—` dan automation menunggu data.
 
 ## Logika otomasi (`js/automation.js`)
 Berjalan setiap 1 detik selagi sebuah halaman terbuka, mengikuti alur di spesifikasi:
 1. **Cek koneksi hardware** — kalau terputus, semua otomasi berhenti dan status berubah "Menunggu Hardware", tidak ada aksi yang dijalankan.
-2. **Baca sensor cahaya** realtime, catat ke riwayat setiap kali kondisi berubah.
+2. **Baca sensor cahaya** realtime dari ESP32, catat ke riwayat setiap kali kondisi berubah.
 3. **Lampu**: menyala hanya jika *dalam jadwal* **dan** kondisi *Gelap* (mode Manual di Jadwal Lampu membuat sistem tidak menimpa kendali pengguna).
 4. **Pakan**: waktu jadwal dibaca dari RTC DS3231. Begitu mencapai jadwal aktif (dan hari ini termasuk hari terpilih), motor/servo "dijalankan" via `HW.runFeeder()`. Level stok setelahnya mengikuti pembacaan HC-SR04, dengan status proses Menunggu → Menjalankan → Berhasil → Menunggu lagi.
-5. **Stok pakan**: notifikasi otomatis begitu stok ≤ 30%, dengan tombol Isi Ulang; hilang otomatis begitu stok diisi ulang.
+5. **Stok pakan**: notifikasi otomatis begitu pembacaan HC-SR04 valid dan stok ≤ 30%. Sebelum sensor mengirim data, stok ditampilkan sebagai `--`, bukan 0%.
 
 ## Interaktivitas
 - Semua toggle, jadwal, status hardware, dan riwayat **saling tersinkronisasi antar halaman** lewat `localStorage` + event `sf-tick` — mengubah status di satu halaman langsung terlihat di halaman lain.

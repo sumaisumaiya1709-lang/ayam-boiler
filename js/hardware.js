@@ -38,7 +38,7 @@ const HW = (() => {
     const lastSeen = SF.get('hardwareLastSeen');
     if(!lastSeen || Date.now() - lastSeen > HEARTBEAT_TIMEOUT){
       if(SF.get('hardwareStatus') === 'ONLINE'){
-        SF.patch({ hardwareStatus:'OFFLINE', sensorPakanAktif:false, sensorCahayaAktif:false });
+        SF.patch({ hardwareStatus:'OFFLINE', sensorPakanAktif:false, sensorCahayaAktif:false, feedDistanceCm:null, feedLevelPercent:null, stokPakan:null, kondisiCahaya:null });
         fireStatus();
       }
     }
@@ -67,9 +67,11 @@ const HW = (() => {
     if(type === 'sensor_data' || type === 'sensor' || type === 'status' || type === 'ultrasonic'){
       const patch = {};
       const light = packet.light_condition || packet.light;
-      if(light === 'Gelap' || light === 'Terang' || light === 'dark' || light === 'bright') patch.kondisiCahaya = (light === 'dark' ? 'Gelap' : light === 'bright' ? 'Terang' : light);
-      if(typeof packet.feedSensor === 'boolean') patch.sensorPakanAktif = packet.feedSensor;
-      if(typeof packet.lightSensor === 'boolean') patch.sensorCahayaAktif = packet.lightSensor;
+      const validLight = light === 'Gelap' || light === 'Terang' || light === 'dark' || light === 'bright';
+      if(validLight){
+        patch.kondisiCahaya = (light === 'dark' ? 'Gelap' : light === 'bright' ? 'Terang' : light);
+        patch.sensorCahayaAktif = true;
+      }
       if(typeof packet.lamp_status === 'boolean') patch.lampuStatus = packet.lamp_status;
       if(typeof packet.lampOn === 'boolean') patch.lampuStatus = packet.lampOn;
       const distance = Number(
@@ -83,6 +85,7 @@ const HW = (() => {
         patch.feedDistanceCm = distance;
         patch.feedLevelPercent = distanceToPercent(distance, SF.get('feedEmptyDistanceCm'), SF.get('feedFullDistanceCm'));
         patch.stokPakan = patch.feedLevelPercent;
+        patch.sensorPakanAktif = true;
       }
       if(Object.keys(patch).length) SF.patch(patch);
     }
@@ -189,6 +192,10 @@ const HW = (() => {
       hardwareStatus: 'OFFLINE',
       sensorPakanAktif: false,
       sensorCahayaAktif: false,
+      feedDistanceCm: null,
+      feedLevelPercent: null,
+      stokPakan: null,
+      kondisiCahaya: null,
       rtcValid: false,
       pakanProsesStatus: 'menunggu-hardware',
     });
@@ -197,11 +204,8 @@ const HW = (() => {
     fireStatus();
   }
 
-  /* The last sensor value comes from the ESP32. A manual override remains
-     available for testing when the controller has not published a value. */
+  /* The light value comes only from the ESP32 sensor packet. */
   function readLightSensor(){
-    const manual = SF.get('sensorCahayaManual');
-    if(manual === 'Gelap' || manual === 'Terang') return manual;
     return SF.get('kondisiCahaya');
   }
 

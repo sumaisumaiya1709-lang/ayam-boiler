@@ -53,15 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
     hwConnectBtn.hidden = connected;
     hwWarningBanner.hidden = connected;
 
-    hwSensorPakan.classList.toggle('on', connected);
-    hwSensorPakan.classList.toggle('off', !connected);
-    hwSensorPakanText.textContent = connected
-      ? (Number.isFinite(st.feedDistanceCm) ? `${st.feedDistanceCm} cm / ${st.feedLevelPercent}%` : 'Menunggu data')
-      : 'Tidak Aktif';
+    const feedSensorReady = connected && st.sensorPakanAktif && Number.isFinite(st.feedDistanceCm) && Number.isFinite(st.feedLevelPercent);
+    hwSensorPakan.classList.toggle('on', feedSensorReady);
+    hwSensorPakan.classList.toggle('off', !feedSensorReady);
+    hwSensorPakanText.textContent = feedSensorReady
+      ? `${st.feedDistanceCm} cm / ${st.feedLevelPercent}%`
+      : (connected ? 'Menunggu Data' : 'Tidak Aktif');
 
-    hwSensorCahaya.classList.toggle('on', connected);
-    hwSensorCahaya.classList.toggle('off', !connected);
-    hwSensorCahayaText.textContent = connected ? (st.kondisiCahaya === 'Gelap' ? '🌙 Gelap' : '☀️ Terang') : 'Tidak Aktif';
+    const lightSensorReady = connected && st.sensorCahayaAktif && !!st.kondisiCahaya;
+    hwSensorCahaya.classList.toggle('on', lightSensorReady);
+    hwSensorCahaya.classList.toggle('off', !lightSensorReady);
+    hwSensorCahayaText.textContent = lightSensorReady
+      ? (st.kondisiCahaya === 'Gelap' ? '🌙 Gelap' : '☀️ Terang')
+      : (connected ? 'Menunggu Data' : 'Tidak Aktif');
 
     hwLastSeen.textContent = connected
       ? `RTC DS3231: ${st.rtcValid ? SF.fmtJam(SF.now()) : 'menunggu data'} · masuk ${timeAgo(st.hardwareLastSeen)}`
@@ -94,21 +98,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const kelilingLingkaran = 2 * Math.PI * jariJari;
     ring.style.strokeDasharray = `${kelilingLingkaran}`;
     // Semakin besar stok, semakin kecil "potongan kosong" pada lingkaran
-    const bagianKosong = kelilingLingkaran - (stok / 100) * kelilingLingkaran;
+    const stockReady = Number.isFinite(stok);
+    const bagianKosong = stockReady ? kelilingLingkaran - (stok / 100) * kelilingLingkaran : kelilingLingkaran;
     ring.style.strokeDashoffset = bagianKosong;
-    ring.setAttribute('stroke', stok <= st.ambangStokPakan ? '#D64545' : '#2E8B57');
-    document.getElementById('stokValue').textContent = `${stok}%`;
+    ring.setAttribute('stroke', stockReady && stok <= st.ambangStokPakan ? '#D64545' : '#2E8B57');
+    document.getElementById('stokValue').textContent = stockReady ? `${stok}%` : '--';
 
-    const days = Math.max(1, Math.round(stok / 25));
-    document.getElementById('stokDesc').textContent =
-      stok <= st.ambangStokPakan
-        ? 'Stok menipis, segera isi ulang pakan'
-        : `Sisa pakan mencukupi untuk ${days} hari ke depan`;
-    stockWarningBanner.hidden = stok > st.ambangStokPakan;
+    const days = stockReady ? Math.max(1, Math.round(stok / 25)) : null;
+    document.getElementById('stokDesc').textContent = !stockReady
+      ? (connected ? 'Menunggu data sensor HC-SR04' : 'Hubungkan perangkat untuk melihat ketersediaan pakan')
+      : (stok <= st.ambangStokPakan ? 'Stok menipis, segera isi ulang pakan' : `Sisa pakan mencukupi untuk ${days} hari ke depan`);
+    stockWarningBanner.hidden = !stockReady || stok > st.ambangStokPakan;
 
     /* Daftar aktivitas terbaru (maksimal 12 baris) */
     const list = document.getElementById('activityList');
-    list.innerHTML = st.aktivitas.slice(0, 12).map(a => `
+    list.innerHTML = st.aktivitas.length ? st.aktivitas.slice(0, 12).map(a => `
       <li class="activity-item">
         <span class="control-ico ${iconClass[a.type] || 'ico-green'}">${icons[a.type] || icons.sensor}</span>
         <div class="activity-text">
@@ -116,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span>${a.time}</span>
         </div>
       </li>
-    `).join('');
+    `).join('') : '<li class="muted">Belum ada aktivitas.</li>';
   }
 
   render(SF.all()); // gambar tampilan pertama kali saat halaman dibuka

@@ -13,7 +13,8 @@
    ========================================================= */
 
 const SF = (() => {
-  const KEY = 'smartfarm_state_v1'; // nama "kotak" penyimpanan di localStorage
+  const KEY = 'smartfarm_state_v2';
+  const LEGACY_KEY = 'smartfarm_state_v1';
 
   // Nilai awal/default untuk semua data di website ini
   const defaults = {
@@ -26,14 +27,13 @@ const SF = (() => {
     hardwareLastSeen: null,         // hanya diperbarui oleh paket ESP32
     rtcIso: null,                    // waktu RTC DS3231 terakhir dari ESP32
     rtcValid: false,
-    sensorPakanAktif: true,         // aktif hanya bila hardware terhubung
+    sensorPakanAktif: false,        // aktif hanya setelah HC-SR04 mengirim data valid
     feedDistanceCm: null,            // jarak permukaan pakan dari HC-SR04
-    feedLevelPercent: 75,            // level pakan hasil kalibrasi HC-SR04
+    feedLevelPercent: null,          // null = belum ada data HC-SR04
     feedEmptyDistanceCm: 40,         // jarak saat wadah kosong
     feedFullDistanceCm: 5,           // jarak saat wadah penuh
-    sensorCahayaAktif: true,        // aktif hanya bila hardware terhubung
-    sensorCahayaManual: null,       // null = ikuti sensor/waktu asli, 'Gelap'|'Terang' = override manual utk pengujian
-    kondisiCahaya: 'Terang',        // dibaca terus-menerus oleh automation.js
+    sensorCahayaAktif: false,       // aktif hanya setelah sensor mengirim data valid
+    kondisiCahaya: null,             // null = belum ada data sensor cahaya
     lampuStatus: false,             // status FISIK lampu (hasil aksi hardware), beda dari toggle mode lampuOtomatis
     pakanProsesStatus: 'menunggu',  // 'menunggu' | 'berjalan' | 'berhasil' | 'menunggu-hardware'
     pakanLastRunKey: '',            // anti-duplikasi: tanggal+jam terakhir pakan otomatis dijalankan
@@ -47,7 +47,7 @@ const SF = (() => {
     pakanTakaran: 500,
     pakanUlangi: true,
     pakanHari: ['Sen','Sel','Rab','Kam','Jum'],
-    pakanTerakhir: 'Hari ini, 12:00',
+    pakanTerakhir: null,
 
     lampuOtomatis: true,
     lampuNyala: '18:00',
@@ -57,41 +57,52 @@ const SF = (() => {
 
     browserAutomationFallback: true,
 
-    stokPakan: 75,     // % ketersediaan pakan, disinkronkan dari HC-SR04
-    stokIsiUlang: 30,  // % shown specifically on the refill screen
+    stokPakan: null,   // hanya berasal dari HC-SR04
+    stokIsiUlang: null,
 
-    riwayatPakan: [
-      { title:'Hari ini, 12:00 WIB', desc:'Pakan: 500 gram', status:'Selesai' },
-      { title:'Hari ini, 07:00 WIB', desc:'Pakan: 500 gram', status:'Selesai' },
-      { title:'Kemarin, 17:00 WIB', desc:'Pakan: 500 gram', status:'Selesai' },
-    ],
+    riwayatPakan: [],
+    aktivitas: [],
+    riwayat: [],
 
-    aktivitas: [
-      { type:'pakan', title:'Pakan Otomatis selesai dijalankan', time:'09:00 WIB' },
-      { type:'lampu-off', title:'Lampu Otomatis dimatikan sistem', time:'06:00 WIB' },
-      { type:'lampu-on', title:'Lampu Otomatis dinyalakan sistem', time:'Kemarin, 18:00 WIB' },
-      { type:'refill', title:'Sisa pakan diisi ulang oleh pengguna', time:'Kemarin, 16:30 WIB' },
-    ],
-
-    riwayat: [
-      { icon:'pakan', title:'Pakan', time:'07:00 WIB', date:'31 Agu 2026', mode:'Otomatis', status:'Selesai' },
-      { icon:'lampu', title:'Lampu ON', time:'18:00 WIB', date:'31 Agu 2026', mode:'Otomatis', status:'Selesai' },
-      { icon:'pakan', title:'Pakan', time:'07:00 WIB', date:'31 Agu 2026', mode:'Otomatis', status:'Selesai' },
-      { icon:'lampu', title:'Lampu OFF', time:'06:00 WIB', date:'31 Agu 2026', mode:'Otomatis', status:'Selesai' },
-      { icon:'pakan', title:'Pakan', time:'12:30 WIB', date:'30 Agu 2026', mode:'Manual', status:'Selesai' },
-    ],
-
-    totalPemberianPakanHariIni: 3,
+    totalPemberianPakanHariIni: 0,
     durasiPencahayaan: 8,
   };
 
-  // Membaca data yang tersimpan di localStorage. Kalau belum ada
-  // (misalnya baru pertama kali buka website), pakai nilai default.
+  function migrateLegacy(legacy){
+    if(!legacy || typeof legacy !== 'object') return structuredClone(defaults);
+    const next = structuredClone(defaults);
+    const preserved = [
+      'hardwareWsUrl', 'deviceId', 'hardwareName', 'feedEmptyDistanceCm',
+      'feedFullDistanceCm', 'pakanOtomatis', 'pakanJadwalAktif', 'pakanJam',
+      'pakanMenit', 'pakanAmPm', 'pakanSlots', 'pakanTakaran', 'pakanUlangi',
+      'pakanHari', 'lampuOtomatis', 'lampuNyala', 'lampuMati', 'lampuHari',
+      'lampuMode', 'durasiPencahayaan', 'browserAutomationFallback'
+    ];
+    preserved.forEach(key => { if(Object.prototype.hasOwnProperty.call(legacy, key)) next[key] = legacy[key]; });
+    return next;
+  }
+
+  // v1 berisi data demo dan tidak menyimpan asal data sensor secara terverifikasi.
   function load(){
     try{
       const raw = localStorage.getItem(KEY);
-      if(!raw) return structuredClone(defaults);
-      return Object.assign(structuredClone(defaults), JSON.parse(raw));
+      if(raw){
+        const state = Object.assign(structuredClone(defaults), JSON.parse(raw));
+        state.hardwareConnected = false;
+        state.hardwareStatus = 'UNKNOWN';
+        state.hardwareLastSeen = null;
+        state.sensorPakanAktif = false;
+        state.sensorCahayaAktif = false;
+        state.feedDistanceCm = null;
+        state.feedLevelPercent = null;
+        state.stokPakan = null;
+        state.kondisiCahaya = null;
+        return state;
+      }
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      const migrated = migrateLegacy(legacy ? JSON.parse(legacy) : null);
+      localStorage.setItem(KEY, JSON.stringify(migrated));
+      return migrated;
     }catch(e){
       return structuredClone(defaults);
     }
