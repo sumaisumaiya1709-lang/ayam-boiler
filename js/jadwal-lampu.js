@@ -1,6 +1,6 @@
 /* =========================================================
    SmartFarm IoT — Halaman Atur Jadwal Lampu
-   Mengatur jam nyala/mati, kecerahan, hari aktif, dan mode
+  Mengatur jam nyala/mati, hari aktif, dan mode
    Otomatis/Manual untuk lampu kandang.
    ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,17 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('active');
       mode = btn.dataset.mode;
     });
-  });
-
-  /* ---- Slider kecerahan lampu ---- */
-  const slider = document.getElementById('brightnessSlider2');
-  const valueLabel = document.getElementById('kecerahanVal');
-  slider.value = st.lampuKecerahanJadwal;
-  slider.style.setProperty('--val', `${st.lampuKecerahanJadwal}%`);
-  valueLabel.textContent = `${st.lampuKecerahanJadwal}%`;
-  slider.addEventListener('input', () => {
-    slider.style.setProperty('--val', `${slider.value}%`);
-    valueLabel.textContent = `${slider.value}%`;
   });
 
   /* ---- Pemilih hari aktif ---- */
@@ -90,13 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---- Tombol "Lainnya": reset cepat ke pengaturan default ---- */
   document.getElementById('moreBtn').addEventListener('click', () => {
-    if(confirm('Reset jadwal lampu ke pengaturan default (18:00–06:00, 75%)?')){
+    if(confirm('Reset jadwal lampu ke pengaturan default (18:00–06:00)?')){
       nyala = '18:00'; mati = '06:00';
       document.getElementById('nyalaVal').textContent = nyala;
       document.getElementById('matiVal').textContent = mati;
-      slider.value = 75;
-      slider.style.setProperty('--val','75%');
-      valueLabel.textContent = '75%';
       showToast('Jadwal direset ke pengaturan default');
     }
   });
@@ -107,13 +93,14 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Pilih minimal satu hari aktif');
       return;
     }
-    SF.patch({
+    const config = {
       lampuNyala: nyala,
       lampuMati: mati,
-      lampuKecerahanJadwal: parseInt(slider.value,10),
       lampuHari: Array.from(selectedDays),
       lampuMode: mode
-    });
+    };
+    SF.patch(config);
+    if(typeof HW !== 'undefined' && HW.isConnected()) HW.sendConfiguration({ device_id: SF.get('deviceId'), lamp_schedule: config }).catch(() => {});
     showToast('Perubahan jadwal lampu disimpan');
     setTimeout(() => { window.location.href = 'lampu-otomatis.html'; }, 700);
   });

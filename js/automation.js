@@ -15,6 +15,7 @@
 
 (function(){
   let feedingInFlight = false; // true selagi motor pakan sedang bekerja (mencegah dobel jalan)
+  let lampInFlight = false;
 
   // Mulai "detak" pengecekan otomasi begitu halaman selesai dimuat,
   // lalu ulangi terus setiap 1 detik selama halaman ini terbuka.
@@ -27,6 +28,10 @@
   function runTick(){
     const st = SF.all();
     const now = SF.now();
+
+    // Produksi: jadwal seharusnya sudah tersimpan di ESP32. Loop ini hanya
+    // fallback prototype selama dashboard terbuka dan dapat dimatikan setelah firmware siap.
+    if(!st.browserAutomationFallback) return;
 
     if(!HW.isConnected()){
       if(st.pakanProsesStatus !== 'menunggu-hardware'){
@@ -82,9 +87,11 @@
     const dalamJadwal = inWindow(nowHM, st.lampuNyala, st.lampuMati);
     const shouldBeOn = dalamJadwal && kondisi === 'Gelap';
 
-    if(shouldBeOn !== !!st.lampuStatus){
-      const res = HW.setLamp(shouldBeOn);
-      if(res.ok){
+    if(shouldBeOn !== !!st.lampuStatus && !lampInFlight){
+      lampInFlight = true;
+      HW.setLamp(shouldBeOn).then(res => {
+        lampInFlight = false;
+        if(!res.ok) return;
         SF.set('lampuStatus', shouldBeOn);
         SF.addAktivitas({
           type: shouldBeOn ? 'lampu-on' : 'lampu-off',
@@ -95,7 +102,8 @@
           icon:'lampu', title:`Lampu ${shouldBeOn ? 'ON' : 'OFF'}`,
           time: SF.fmtJam(now), date:'Hari ini', mode:'Otomatis', status:'Selesai'
         });
-      }
+        broadcastTick();
+      });
     }
   }
 

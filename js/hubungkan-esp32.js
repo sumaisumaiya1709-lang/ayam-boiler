@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function render(st, connecting = false){
-    const connected = !!st.hardwareConnected;
+    const connected = st.hardwareStatus === 'ONLINE';
     statusText.textContent = connecting ? 'Menghubungkan...' : (connected ? 'ESP32 terhubung' : 'Tidak terhubung');
     pill.classList.toggle('on', connected && !connecting);
     pill.classList.toggle('off', !connected && !connecting);
@@ -56,9 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
     addLog(`Mencoba koneksi ke ${endpoint}`);
     render(SF.all(), true);
     HW.connect(endpoint).then(() => {
-      addLog('WebSocket terbuka, handshake hello terkirim');
+      addLog('WebSocket terbuka, menunggu heartbeat ESP32');
       render(SF.all());
-      showToast('ESP32 berhasil terhubung');
+      showToast('Menunggu heartbeat ESP32');
     }).catch(error => {
       SF.patch({ hardwareConnected:false, sensorPakanAktif:false, sensorCahayaAktif:false });
       render(SF.all());

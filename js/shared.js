@@ -1,10 +1,9 @@
 /* =========================================================
    SmartFarm IoT — Tempat penyimpanan data bersama (SF = SmartFarm)
    ---------------------------------------------------------
-   File ini dipakai oleh SEMUA halaman. Semua data (jadwal, stok,
-   status hardware, riwayat, dll) disimpan di satu tempat yaitu
-   localStorage milik browser, supaya setiap halaman selalu
-   melihat data yang sama dan tetap sinkron.
+  File ini dipakai oleh SEMUA halaman sebagai cache/prototype state.
+  Data produksi akan datang dari API Laravel; localStorage bukan
+  sumber kebenaran untuk histori, sensor, device, atau jadwal.
 
    Cara pakai dari file lain:
      SF.get('namaData')        -> ambil satu nilai
@@ -19,10 +18,12 @@ const SF = (() => {
   // Nilai awal/default untuk semua data di website ini
   const defaults = {
     /* ---- Koneksi Hardware / Controller (ESP32) ---- */
-    hardwareConnected: false,       // status koneksi web <-> controller
+    hardwareConnected: false,       // socket siap; status fisik ditentukan heartbeat
+    hardwareStatus: 'UNKNOWN',      // ONLINE | OFFLINE | UNKNOWN
+    deviceId: 'KANDANG_01',
     hardwareName: 'ESP32 SmartFarm Controller',
     hardwareWsUrl: 'ws://192.168.4.1:81', // endpoint WebSocket ESP32
-    hardwareLastSeen: Date.now(),   // timestamp data terakhir diterima dari hardware
+    hardwareLastSeen: null,         // hanya diperbarui oleh paket ESP32
     rtcIso: null,                    // waktu RTC DS3231 terakhir dari ESP32
     rtcValid: false,
     sensorPakanAktif: true,         // aktif hanya bila hardware terhubung
@@ -51,10 +52,10 @@ const SF = (() => {
     lampuOtomatis: true,
     lampuNyala: '18:00',
     lampuMati: '06:00',
-    lampuKecerahan: 85,
-    lampuKecerahanJadwal: 75,
     lampuHari: ['Sen','Sel','Rab','Kam','Jum'],
     lampuMode: 'Otomatis',
+
+    browserAutomationFallback: true,
 
     stokPakan: 75,     // % ketersediaan pakan, disinkronkan dari HC-SR04
     stokIsiUlang: 30,  // % shown specifically on the refill screen

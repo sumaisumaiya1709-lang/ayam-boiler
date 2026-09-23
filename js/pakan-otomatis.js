@@ -71,8 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     procChip.className = `proc-chip ${p.cls}`;
     procChipText.textContent = p.text;
 
-    pakanWarningBanner.hidden = st.hardwareConnected;
-    beriPakanBtn.disabled = !st.hardwareConnected || st.pakanProsesStatus === 'berjalan';
+    const hardwareOnline = st.hardwareStatus === 'ONLINE';
+    pakanWarningBanner.hidden = hardwareOnline;
+    beriPakanBtn.disabled = !hardwareOnline || st.pakanProsesStatus === 'berjalan';
     beriPakanBtn.style.opacity = beriPakanBtn.disabled ? .6 : 1;
 
     renderHistory();

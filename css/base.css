@@ -170,7 +170,7 @@ input{ font-family:inherit; }
   color:#fff;
   box-shadow:0 10px 22px rgba(46,139,87,.28);
 }
-.btn-primary:active{ filter:brightness(.96); }
+.btn-primary:active{ opacity:.96; }
 .btn-outline{
   background:var(--white);
   color:var(--green-700);

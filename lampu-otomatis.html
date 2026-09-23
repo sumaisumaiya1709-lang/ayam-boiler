@@ -59,7 +59,7 @@
       <button class="switch" data-key="lampuOtomatis" id="lampSwitch"></button>
     </div>
 
-    <div class="card kecerahan-card" style="margin-bottom:14px;">
+    <div class="card sensor-card" style="margin-bottom:14px;">
       <div class="flex-between" style="margin-bottom:2px;">
         <span class="row-gap" style="font-weight:800; font-size:13.5px; color:var(--text);">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="color:var(--yellow);"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.3M12 19.2v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -91,17 +91,6 @@
       </div>
     </div>
 
-    <div class="card kecerahan-card">
-      <div class="flex-between" style="margin-bottom:12px;">
-        <span class="row-gap" style="font-weight:800; font-size:13.5px; color:var(--text);">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="color:var(--yellow);"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.3M12 19.2v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          KECERAHAN
-        </span>
-        <strong id="kecerahanValue">85%</strong>
-      </div>
-      <input type="range" min="0" max="100" value="85" class="brightness-slider" id="brightnessSlider">
-    </div>
-
     <button class="btn btn-primary" id="nyalakanBtn" style="margin-top:18px;">Nyalakan Sekarang</button>
     <a href="jadwal-lampu.html" class="btn btn-outline" style="margin-top:12px;">Atur Jadwal</a>
 
@@ -127,6 +116,7 @@
 </div>
 
 <script src="js/shared.js"></script>
+<script src="js/api.js"></script>
 <script src="js/hardware.js"></script>
 <script src="js/automation.js"></script>
 <script src="js/lampu-otomatis.js"></script>

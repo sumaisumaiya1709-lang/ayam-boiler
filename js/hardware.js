@@ -13,31 +13,19 @@
 
 const HW = (() => {
 
-  let heartbeatTimer = null;
   let socket = null;
   let connectPromise = null;
+  const pending = new Map();
+  const ACK_TIMEOUT = 10000;
+  const HEARTBEAT_TIMEOUT = 15000;
 
   // Memberi tahu halaman lain bahwa status koneksi hardware berubah
   function fireStatus(){
     document.dispatchEvent(new CustomEvent('hw-status-changed'));
   }
 
-  // Fallback watchdog untuk memastikan status lokal tidak stale.
-  function startHeartbeat(){
-    stopHeartbeat();
-    heartbeatTimer = setInterval(() => {
-      if(!SF.get('hardwareConnected')){ stopHeartbeat(); return; }
-      SF.set('hardwareLastSeen', Date.now());
-      document.dispatchEvent(new CustomEvent('hw-heartbeat'));
-    }, 4000);
-  }
-  function stopHeartbeat(){
-    clearInterval(heartbeatTimer);
-    heartbeatTimer = null;
-  }
-
-  // Mengecek apakah hardware sedang terhubung
-  function isConnected(){ return !!SF.get('hardwareConnected'); }
+  // Socket terbuka bukan bukti hardware hidup; command tetap menunggu ACK ESP32.
+  function isConnected(){ return !!SF.get('hardwareConnected') && SF.get('hardwareStatus') === 'ONLINE'; }
 
   function send(message){
     if(!socket || socket.readyState !== WebSocket.OPEN) return false;
@@ -45,10 +33,30 @@ const HW = (() => {
     return true;
   }
 
+  // Watchdog hanya menilai freshness heartbeat; tidak pernah mengubah last_seen.
+  setInterval(() => {
+    const lastSeen = SF.get('hardwareLastSeen');
+    if(!lastSeen || Date.now() - lastSeen > HEARTBEAT_TIMEOUT){
+      if(SF.get('hardwareStatus') === 'ONLINE'){
+        SF.patch({ hardwareStatus:'OFFLINE', sensorPakanAktif:false, sensorCahayaAktif:false });
+        fireStatus();
+      }
+    }
+  }, 5000);
+
   function applyPacket(packet){
     if(!packet || typeof packet !== 'object') return;
     const type = packet.type || packet.event;
-    SF.set('hardwareLastSeen', Date.now());
+    if(packet.request_id && pending.has(packet.request_id)){
+      const command = pending.get(packet.request_id);
+      pending.delete(packet.request_id);
+      clearTimeout(command.timer);
+      command.resolve({ ok: packet.status === 'success', ...packet });
+    }
+    if(type === 'heartbeat' || type === 'sensor_data' || type === 'sensor' || type === 'status' || type === 'ultrasonic'){
+      SF.patch({ hardwareLastSeen: packet.timestamp ? new Date(packet.timestamp).getTime() : Date.now(), hardwareStatus:'ONLINE', hardwareConnected:true });
+      document.dispatchEvent(new CustomEvent('hw-heartbeat'));
+    }
     document.dispatchEvent(new CustomEvent('hw-message', { detail: packet }));
 
     if(type === 'rtc' || packet.rtc || packet.rtcIso){
@@ -56,14 +64,17 @@ const HW = (() => {
       if(rtc) SF.patch({ rtcIso: rtc.toISOString(), rtcValid: true });
     }
 
-    if(type === 'sensor' || type === 'status' || type === 'ultrasonic'){
+    if(type === 'sensor_data' || type === 'sensor' || type === 'status' || type === 'ultrasonic'){
       const patch = {};
-      if(packet.light === 'Gelap' || packet.light === 'Terang') patch.kondisiCahaya = packet.light;
+      const light = packet.light_condition || packet.light;
+      if(light === 'Gelap' || light === 'Terang' || light === 'dark' || light === 'bright') patch.kondisiCahaya = (light === 'dark' ? 'Gelap' : light === 'bright' ? 'Terang' : light);
       if(typeof packet.feedSensor === 'boolean') patch.sensorPakanAktif = packet.feedSensor;
       if(typeof packet.lightSensor === 'boolean') patch.sensorCahayaAktif = packet.lightSensor;
+      if(typeof packet.lamp_status === 'boolean') patch.lampuStatus = packet.lamp_status;
       if(typeof packet.lampOn === 'boolean') patch.lampuStatus = packet.lampOn;
       const distance = Number(
         packet.distanceCm
+        ?? packet.distance_cm
         ?? packet.feedDistanceCm
         ?? packet.distance
         ?? packet.hcsr04?.distanceCm
@@ -103,19 +114,13 @@ const HW = (() => {
     return Math.max(0, Math.min(100, Math.round(((empty - distance) / span) * 100)));
   }
 
-  function markConnected(){
-    const wasConnected = isConnected();
+  function markSocketReady(){
     SF.patch({
       hardwareConnected: true,
-      hardwareLastSeen: Date.now(),
-      sensorPakanAktif: true,
-      sensorCahayaAktif: true,
+      hardwareStatus: 'UNKNOWN',
+      sensorPakanAktif: false,
+      sensorCahayaAktif: false,
     });
-    if(!wasConnected){
-      SF.addAktivitas({ type:'hardware-on', title:'Hardware berhasil terhubung ke sistem', time: SF.fmtJam() });
-      SF.addRiwayat({ icon:'hardware', title:'Hardware Terhubung', time: SF.fmtJam(), date:'Hari ini', mode:'Sistem', status:'Selesai' });
-    }
-    startHeartbeat();
     fireStatus();
   }
 
@@ -146,9 +151,9 @@ const HW = (() => {
             version:1,
             sensors:{ clock:'DS3231', feedLevel:'HC-SR04' }
           });
-          // ESP32 boleh membalas hello/connected; koneksi juga dianggap siap
-          // setelah socket open agar tetap kompatibel dengan firmware sederhana.
-          markConnected();
+          // Socket hanya siap untuk menunggu heartbeat; status ONLINE ditetapkan
+          // setelah ESP32 benar-benar mengirim heartbeat atau data sensor.
+          markSocketReady();
           if(!settled){ settled = true; connectPromise = null; resolve(true); }
         });
         socket.addEventListener('message', event => {
@@ -163,7 +168,7 @@ const HW = (() => {
         socket.addEventListener('close', () => {
           socket = null;
           connectPromise = null;
-          if(isConnected()) disconnect('Koneksi WebSocket terputus');
+          disconnect('Koneksi WebSocket terputus');
         });
         socket.addEventListener('error', () => fail(new Error('Tidak dapat membuka koneksi ke ESP32.')));
       }catch(error){ fail(error); }
@@ -176,9 +181,12 @@ const HW = (() => {
     socket = null;
     connectPromise = null;
     if(currentSocket && currentSocket.readyState < WebSocket.CLOSING) currentSocket.close();
-    if(!isConnected()) return;
+    pending.forEach(command => { clearTimeout(command.timer); command.resolve({ ok:false, reason:'disconnected' }); });
+    pending.clear();
+    if(!SF.get('hardwareConnected')) return;
     SF.patch({
       hardwareConnected: false,
+      hardwareStatus: 'OFFLINE',
       sensorPakanAktif: false,
       sensorCahayaAktif: false,
       rtcValid: false,
@@ -186,7 +194,6 @@ const HW = (() => {
     });
     SF.addAktivitas({ type:'hardware-off', title: reason || 'Hardware terputus dari sistem', time: SF.fmtJam() });
     SF.addRiwayat({ icon:'hardware', title:'Hardware Terputus', time: SF.fmtJam(), date:'Hari ini', mode:'Sistem', status:'Terputus' });
-    stopHeartbeat();
     fireStatus();
   }
 
@@ -198,21 +205,24 @@ const HW = (() => {
     return SF.get('kondisiCahaya');
   }
 
-  function runFeeder(gram){
-    if(!isConnected()){
-      return Promise.resolve({ ok:false, reason:'not-connected' });
-    }
-    const sent = send({ type:'feed', grams:Number(gram) });
-    return Promise.resolve(sent ? { ok:true } : { ok:false, reason:'socket-not-open' });
+  function command(type, payload){
+    if(!isConnected()) return Promise.resolve({ ok:false, reason:'not-connected' });
+    const request_id = `${SF.get('deviceId')}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    return new Promise(resolve => {
+      const timer = setTimeout(() => { pending.delete(request_id); resolve({ ok:false, reason:'ack-timeout', request_id }); }, ACK_TIMEOUT);
+      pending.set(request_id, { resolve, timer });
+      if(!send({ type, request_id, ...payload })){
+        clearTimeout(timer); pending.delete(request_id); resolve({ ok:false, reason:'socket-not-open', request_id });
+      }
+    });
   }
 
-  function setLamp(on){
-    if(!isConnected()) return { ok:false, reason:'not-connected' };
-    return send({ type:'lamp', on:!!on }) ? { ok:true } : { ok:false, reason:'socket-not-open' };
-  }
+  function runFeeder(gram){ return command('feed', { grams:Number(gram) }); }
+  function setLamp(on){ return command('lamp', { on:!!on }); }
+  function sendConfiguration(config){ return command('configuration', { config }); }
 
   // Halaman baru mencoba menyambung ulang ke endpoint terakhir yang disimpan.
   if(SF.get('hardwareConnected') && SF.get('hardwareWsUrl')) connect().catch(() => disconnect('Koneksi WebSocket gagal dipulihkan'));
 
-  return { isConnected, connect, disconnect, readLightSensor, runFeeder, setLamp };
+  return { isConnected, connect, disconnect, readLightSensor, runFeeder, setLamp, sendConfiguration };
 })();

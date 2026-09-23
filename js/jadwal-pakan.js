@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(ampm === 'PM') jam24 += 12;
     const jam24Text = jam24.toString().padStart(2,'0');
 
-    SF.patch({
+    const config = {
       pakanJam: jam,
       pakanMenit: menit,
       pakanAmPm: ampm,
@@ -75,7 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
       pakanHari: Array.from(selectedDays),
       pakanJadwalAktif: `${jam24Text}:${menit.toString().padStart(2,'0')}`,
       pakanLastRunKey: ''  // jadwal berubah -> izinkan trigger lagi hari ini jika waktunya cocok
-    });
+    };
+    SF.patch(config);
+    if(typeof HW !== 'undefined' && HW.isConnected()) HW.sendConfiguration({ device_id: SF.get('deviceId'), feed_schedule: config }).catch(() => {});
     showToast('Jadwal pakan berhasil disimpan');
     setTimeout(() => { window.location.href = 'pakan-otomatis.html'; }, 700);
   });

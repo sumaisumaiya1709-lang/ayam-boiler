@@ -1,6 +1,6 @@
 /* =========================================================
    SmartFarm IoT — Halaman Lampu Otomatis
-   Detail & kontrol lampu: durasi menyala, kecerahan, simulasi
+  Detail & kontrol lampu: durasi menyala, simulasi
    sensor cahaya, dan tombol "Nyalakan Sekarang".
    ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,14 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshMode(e.detail.on);
     showToast(e.detail.on ? 'Lampu otomatis diaktifkan' : 'Lampu otomatis dinonaktifkan');
   });
-
-  /* ---- Slider kecerahan lampu ---- */
-  const slider = document.getElementById('brightnessSlider');
-  const valueLabel = document.getElementById('kecerahanValue');
-  slider.value = SF.get('lampuKecerahan');
-  valueLabel.textContent = `${SF.get('lampuKecerahan')}%`;
-  slider.addEventListener('input', () => { valueLabel.textContent = `${slider.value}%`; });
-  slider.addEventListener('change', () => { SF.set('lampuKecerahan', parseInt(slider.value,10)); });
 
   // Menggambar ulang daftar aktivitas khusus lampu (maksimal 5 baris terbaru)
   function renderActivity(){
@@ -70,7 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshMode(st.lampuOtomatis);
 
     // Teks kondisi sensor cahaya: tanda hubung kalau hardware belum terhubung
-    document.getElementById('kondisiCahayaText').textContent = st.hardwareConnected
+    const hardwareOnline = st.hardwareStatus === 'ONLINE';
+    document.getElementById('kondisiCahayaText').textContent = hardwareOnline
       ? (st.kondisiCahaya === 'Gelap' ? '🌙 Gelap' : '☀️ Terang')
       : '—';
 
@@ -82,16 +75,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* Status FISIK lampu yang menentukan tampilan, bukan sekadar saklar mode otomatis */
-    const physicallyOn = st.hardwareConnected && st.lampuStatus;
-    document.getElementById('lampCaptionText').textContent = !st.hardwareConnected
+    const physicallyOn = hardwareOnline && st.lampuStatus;
+    document.getElementById('lampCaptionText').textContent = !hardwareOnline
       ? 'Hardware Tidak Terhubung'
       : (physicallyOn ? 'Lampu Menyala' : 'Lampu Mati');
     document.getElementById('lampDot').classList.toggle('off', !physicallyOn);
     document.getElementById('glowCircle').style.opacity = physicallyOn ? '1' : '0';
     document.getElementById('lampGlassFill').setAttribute('fill', physicallyOn ? '#FCE7A0' : '#C9C2AE');
 
-    lampuWarningBanner.hidden = st.hardwareConnected;
-    nyalakanBtn.disabled = !st.hardwareConnected;
+    lampuWarningBanner.hidden = hardwareOnline;
+    nyalakanBtn.disabled = !hardwareOnline;
     nyalakanBtn.style.opacity = nyalakanBtn.disabled ? .6 : 1;
 
     renderActivity();
@@ -109,15 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Hubungkan hardware terlebih dahulu untuk menjalankan sistem otomatis.');
       return;
     }
-    const res = HW.setLamp(true);
-    if(res.ok){
-      SF.set('lampuStatus', true);
+    HW.setLamp(true).then(res => {
+      if(res.ok){
+        SF.set('lampuStatus', true);
       SF.addAktivitas({ type:'lampu-on', title:'Lampu dinyalakan manual oleh pengguna', time: SF.fmtJam() });
       SF.addRiwayat({ icon:'lampu', title:'Lampu ON', time: SF.fmtJam(), date:'Hari ini', mode:'Manual', status:'Selesai' });
       showToast('Lampu dinyalakan sekarang');
       if(SF.get('lampuOtomatis') && SF.get('lampuMode') !== 'Manual'){
         showToast('Catatan: sistem otomatis dapat mengubahnya kembali sesuai jadwal & sensor.');
       }
-    }
+      } else showToast(res.reason === 'ack-timeout' ? 'ESP32 tidak memberi konfirmasi lampu.' : 'Lampu gagal dinyalakan.');
+    });
   });
 });

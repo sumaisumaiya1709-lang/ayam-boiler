@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Menggambar ulang seluruh tampilan halaman berdasarkan data (st) terbaru
   function render(st){
-    const connected = st.hardwareConnected;
+    const connected = st.hardwareStatus === 'ONLINE';
 
     hwPill.classList.toggle('on', connected);
     hwPill.classList.toggle('off', !connected);
