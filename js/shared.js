@@ -29,11 +29,12 @@ const SF = (() => {
     rtcValid: false,
     sensorPakanAktif: false,        // aktif hanya setelah HC-SR04 mengirim data valid
     feedDistanceCm: null,            // jarak permukaan pakan dari HC-SR04
-    feedLevelPercent: null,          // null = belum ada data HC-SR04
+    feedLevelPercent: null,          // persentase dari paket HC-SR04 aktual
     feedEmptyDistanceCm: 40,         // jarak saat wadah kosong
     feedFullDistanceCm: 5,           // jarak saat wadah penuh
     sensorCahayaAktif: false,       // aktif hanya setelah sensor mengirim data valid
     kondisiCahaya: null,             // null = belum ada data sensor cahaya
+    sensorApiLightCondition: null,
     lampuStatus: false,             // status FISIK lampu (hasil aksi hardware), beda dari toggle mode lampuOtomatis
     pakanProsesStatus: 'menunggu',  // 'menunggu' | 'berjalan' | 'berhasil' | 'menunggu-hardware'
     pakanLastRunKey: '',            // anti-duplikasi: tanggal+jam terakhir pakan otomatis dijalankan
@@ -41,6 +42,8 @@ const SF = (() => {
     stokWarned: false,
 
     pakanOtomatis: true,
+    pakanScheduleAvailable: false,
+    pakanScheduleActive: false,
     pakanJadwalAktif: '12:00',      // jadwal aktif yang dijalankan otomatis oleh controller
     pakanJam: 12, pakanMenit: 0, pakanAmPm: 'PM',
     pakanSlots: ['07:00','12:00','17:00'],
@@ -50,6 +53,8 @@ const SF = (() => {
     pakanTerakhir: null,
 
     lampuOtomatis: true,
+    lampScheduleAvailable: false,
+    lampScheduleActive: false,
     lampuNyala: '18:00',
     lampuMati: '06:00',
     lampuHari: ['Sen','Sel','Rab','Kam','Jum'],
@@ -57,7 +62,7 @@ const SF = (() => {
 
     browserAutomationFallback: true,
 
-    stokPakan: null,   // hanya berasal dari HC-SR04
+    stokPakan: null,   // hanya berasal dari Laravel API
     stokIsiUlang: null,
 
     riwayatPakan: [],
@@ -97,6 +102,7 @@ const SF = (() => {
         state.feedLevelPercent = null;
         state.stokPakan = null;
         state.kondisiCahaya = null;
+        state.sensorApiLightCondition = null;
         return state;
       }
       const legacy = localStorage.getItem(LEGACY_KEY);

@@ -38,7 +38,7 @@ const HW = (() => {
     const lastSeen = SF.get('hardwareLastSeen');
     if(!lastSeen || Date.now() - lastSeen > HEARTBEAT_TIMEOUT){
       if(SF.get('hardwareStatus') === 'ONLINE'){
-        SF.patch({ hardwareStatus:'OFFLINE', sensorPakanAktif:false, sensorCahayaAktif:false, feedDistanceCm:null, feedLevelPercent:null, stokPakan:null, kondisiCahaya:null });
+        SF.patch({ hardwareStatus:'OFFLINE', sensorPakanAktif:false, sensorCahayaAktif:false, feedDistanceCm:null, feedLevelPercent:null, kondisiCahaya:null });
         fireStatus();
       }
     }
@@ -84,7 +84,6 @@ const HW = (() => {
       if(Number.isFinite(distance) && distance >= 0){
         patch.feedDistanceCm = distance;
         patch.feedLevelPercent = distanceToPercent(distance, SF.get('feedEmptyDistanceCm'), SF.get('feedFullDistanceCm'));
-        patch.stokPakan = patch.feedLevelPercent;
         patch.sensorPakanAktif = true;
       }
       if(Object.keys(patch).length) SF.patch(patch);
@@ -194,7 +193,6 @@ const HW = (() => {
       sensorCahayaAktif: false,
       feedDistanceCm: null,
       feedLevelPercent: null,
-      stokPakan: null,
       kondisiCahaya: null,
       rtcValid: false,
       pakanProsesStatus: 'menunggu-hardware',

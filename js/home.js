@@ -27,13 +27,66 @@ document.addEventListener('DOMContentLoaded', () => {
     badge.lastChild.textContent = on ? 'Aktif' : 'Nonaktif';
   }
 
+  async function persistScheduleToggle(kind, active, toggle){
+    const isFeed = kind === 'feed';
+    const key = isFeed ? 'pakanOtomatis' : 'lampuOtomatis';
+    const badge = isFeed ? 'badgePakan' : 'badgeLampu';
+    SF.set(key, !active);
+    toggle.classList.toggle('on', !active);
+    toggle.setAttribute('aria-checked', !active);
+    toggle.disabled = true;
+
+    try {
+      const schedules = isFeed
+        ? await API.getFeedSchedules()
+        : await API.getLampSchedules();
+      const schedule = Array.isArray(schedules)
+        ? schedules.find(item => Number(item.device_id) === 1)
+        : null;
+      if (!schedule) throw new Error('Jadwal untuk perangkat tidak ditemukan.');
+
+      if (isFeed) {
+        await API.updateFeedSchedule(schedule.id, {
+          device_id: 1,
+          feeding_time: String(schedule.feeding_time).slice(0, 5),
+          feed_amount: Number(schedule.feed_amount),
+          is_active: active,
+          days: Array.isArray(schedule.days) ? schedule.days : []
+        });
+        SF.patch({ pakanOtomatis: active, pakanUlangi: active, pakanScheduleActive: active });
+      } else {
+        await API.updateLampSchedule(schedule.id, {
+          device_id: 1,
+          start_time: String(schedule.start_time).slice(0, 5),
+          end_time: String(schedule.end_time).slice(0, 5),
+          auto_mode: active,
+          is_active: active ? true : !!schedule.is_active,
+          days: Array.isArray(schedule.days) ? schedule.days : []
+        });
+        SF.patch({
+          lampuOtomatis: active,
+          lampuMode: active ? 'Otomatis' : 'Manual',
+          lampScheduleActive: active ? true : !!schedule.is_active
+        });
+      }
+      refreshBadge(badge, active);
+      showToast(active ? 'Otomatisasi diaktifkan' : 'Otomatisasi dinonaktifkan');
+    } catch (error) {
+      console.error('Gagal menyimpan status otomasi dari Home:', error);
+      toggle.classList.toggle('on', !active);
+      toggle.setAttribute('aria-checked', !active);
+      refreshBadge(badge, !active);
+      showToast('Status otomasi gagal disimpan ke database');
+    } finally {
+      toggle.disabled = false;
+    }
+  }
+
   document.querySelector('[data-key="pakanOtomatis"]').addEventListener('sf-toggle', e => {
-    refreshBadge('badgePakan', e.detail.on);
-    showToast(e.detail.on ? 'Pakan otomatis diaktifkan' : 'Pakan otomatis dinonaktifkan');
+    persistScheduleToggle('feed', e.detail.on, e.currentTarget);
   });
   document.querySelector('[data-key="lampuOtomatis"]').addEventListener('sf-toggle', e => {
-    refreshBadge('badgeLampu', e.detail.on);
-    showToast(e.detail.on ? 'Pencahayaan otomatis diaktifkan' : 'Pencahayaan otomatis dinonaktifkan');
+    persistScheduleToggle('lamp', e.detail.on, e.currentTarget);
   });
 
   /* ---------------- Kartu status hardware ---------------- */
@@ -95,10 +148,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
     refreshBadge('badgePakan', st.pakanOtomatis);
     refreshBadge('badgeLampu', st.lampuOtomatis);
+    document.querySelectorAll('[data-key="pakanOtomatis"]').forEach(toggle => {
+      const active = st.pakanScheduleAvailable && st.pakanScheduleActive && st.pakanOtomatis;
+      toggle.classList.toggle('on', active);
+      toggle.setAttribute('aria-checked', active);
+    });
+    document.querySelectorAll('[data-key="lampuOtomatis"]').forEach(toggle => {
+      const active = st.lampScheduleAvailable && st.lampScheduleActive && st.lampuOtomatis;
+      toggle.classList.toggle('on', active);
+      toggle.setAttribute('aria-checked', active);
+    });
   }
 
   render(SF.all()); // gambar tampilan pertama kali saat halaman dibuka
 
+    // Sinkronisasi data Dashboard dari Laravel
+  async function syncDashboardFromApi(){
+    try {
+      const [sensors, feedSchedules, lampSchedules] = await Promise.all([
+        API.getSensorData(),
+        API.getFeedSchedules(),
+        API.getLampSchedules()
+      ]);
+
+      const sensor = sensors?.[0];
+      const feedSchedule = Array.isArray(feedSchedules)
+        ? feedSchedules.find(item => Number(item.device_id) === 1)
+        : null;
+      const lampSchedule = Array.isArray(lampSchedules)
+        ? lampSchedules.find(item => Number(item.device_id) === 1)
+        : null;
+
+      if (sensor) {
+        const stock = sensor.feed_stock == null ? null : Number(sensor.feed_stock);
+        SF.patch({
+          stokPakan: Number.isFinite(stock) ? stock : null
+        });
+      }
+
+      if (feedSchedule) {
+        SF.patch({
+          pakanScheduleAvailable: true,
+          pakanScheduleActive: !!feedSchedule.is_active,
+          pakanJadwalAktif: String(feedSchedule.feeding_time).slice(0, 5),
+          pakanTakaran: Number(feedSchedule.feed_amount),
+          pakanOtomatis: !!feedSchedule.is_active,
+          pakanUlangi: !!feedSchedule.is_active,
+          pakanHari: Array.isArray(feedSchedule.days) ? feedSchedule.days : []
+        });
+      } else {
+        SF.patch({ pakanScheduleAvailable: false, pakanScheduleActive: false, pakanOtomatis: false });
+      }
+
+      if (lampSchedule) {
+        SF.patch({
+          lampScheduleAvailable: true,
+          lampScheduleActive: !!lampSchedule.is_active,
+          lampuNyala: String(lampSchedule.start_time).slice(0, 5),
+          lampuMati: String(lampSchedule.end_time).slice(0, 5),
+          lampuMode: lampSchedule.auto_mode ? 'Otomatis' : 'Manual',
+          lampuOtomatis: !!lampSchedule.auto_mode && !!lampSchedule.is_active,
+          lampuHari: Array.isArray(lampSchedule.days) ? lampSchedule.days : []
+        });
+      } else {
+        SF.patch({ lampScheduleAvailable: false, lampScheduleActive: false, lampuOtomatis: false });
+      }
+
+      render(SF.all());
+
+    } catch (error) {
+      console.error('Gagal mengambil data Dashboard dari Laravel:', error);
+      SF.patch({
+        stokPakan: null,
+        pakanScheduleAvailable: false,
+        pakanScheduleActive: false,
+        pakanOtomatis: false,
+        pakanUlangi: false,
+        lampScheduleAvailable: false,
+        lampScheduleActive: false,
+        lampuOtomatis: false
+      });
+      render(SF.all());
+    }
+  }
+
+  syncDashboardFromApi();
   // Gambar ulang tampilan setiap kali ada data baru dari automation.js/hardware.js
   document.addEventListener('sf-tick', e => render(e.detail));
   document.addEventListener('hw-status-changed', () => render(SF.all()));

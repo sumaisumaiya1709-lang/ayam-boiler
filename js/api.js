@@ -1,9 +1,11 @@
-/* SmartFarm API service.
- * The REST adapter is intentionally disabled until Laravel is available.
- * Local state remains a browser cache/prototype store, never the production source of truth.
+/* SmartFarm REST adapter for the Laravel API.
+ * Local state is a browser cache, never the production source of truth.
  */
 const API = (() => {
-  const config = { baseUrl: '', enabled: false };
+  const config = {
+  baseUrl: 'http://127.0.0.1:8000',
+  enabled: true
+  };
 
   async function request(path, options = {}) {
     if(!config.enabled || !config.baseUrl){
@@ -25,7 +27,8 @@ const API = (() => {
   const json = body => ({ method:'POST', body: JSON.stringify(body) });
   return {
     configure,
-    getDeviceStatus: () => request('/api/devices/status'),
+    request,
+    getDeviceStatus: () => request('/api/devices'),
     getSensorData: () => request('/api/sensor-readings'),
     getFeedSchedules: () => request('/api/feed-schedules'),
     createFeedSchedule: schedule => request('/api/feed-schedules', json(schedule)),
@@ -38,5 +41,6 @@ const API = (() => {
     getFeedHistory: () => request('/api/feed-history'),
     getLampHistory: () => request('/api/lamp-history'),
     getActivityLogs: () => request('/api/activity-logs'),
+    refillFeed: data => request('/api/feed-refill', json(data)),
   };
 })();

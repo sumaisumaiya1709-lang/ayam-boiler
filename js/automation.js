@@ -16,18 +16,76 @@
 (function(){
   let feedingInFlight = false; // true selagi motor pakan sedang bekerja (mencegah dobel jalan)
   let lampInFlight = false;
+  let lastLampCommand = null;
+  let lastLampAttemptAt = 0;
+  let schedulesReady = false;
 
   // Mulai "detak" pengecekan otomasi begitu halaman selesai dimuat,
   // lalu ulangi terus setiap 1 detik selama halaman ini terbuka.
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await syncSchedules();
     runTick();
     setInterval(runTick, 1000);
+    setInterval(syncSchedules, 30000);
   });
+
+  async function syncSchedules(){
+    try{
+      const [feedSchedules, lampSchedules] = await Promise.all([
+        API.getFeedSchedules(),
+        API.getLampSchedules()
+      ]);
+      const feed = Array.isArray(feedSchedules)
+        ? feedSchedules.find(schedule => Number(schedule.device_id) === 1)
+        : null;
+      const lamp = Array.isArray(lampSchedules)
+        ? lampSchedules.find(schedule => Number(schedule.device_id) === 1)
+        : null;
+      const feedTime = feed ? String(feed.feeding_time).slice(0, 5) : '';
+
+      SF.patch({
+        pakanScheduleAvailable: !!feed,
+        pakanScheduleActive: !!feed && !!feed.is_active,
+        pakanJadwalAktif: feedTime,
+        pakanSlots: feed ? [feedTime] : [],
+        pakanTakaran: feed ? Number(feed.feed_amount) : SF.get('pakanTakaran'),
+        pakanUlangi: !!feed && !!feed.is_active,
+        pakanOtomatis: !!feed && !!feed.is_active,
+        pakanHari: Array.isArray(feed?.days) ? feed.days : [],
+        lampScheduleAvailable: !!lamp,
+        lampScheduleActive: !!lamp && !!lamp.is_active,
+        lampuNyala: lamp ? String(lamp.start_time).slice(0, 5) : '',
+        lampuMati: lamp ? String(lamp.end_time).slice(0, 5) : '',
+        lampuMode: lamp?.auto_mode ? 'Otomatis' : 'Manual',
+        lampuOtomatis: !!lamp && !!lamp.auto_mode && !!lamp.is_active,
+        lampuHari: Array.isArray(lamp?.days) ? lamp.days : []
+      });
+      schedulesReady = true;
+      broadcastTick();
+    }catch(error){
+      schedulesReady = false;
+      SF.patch({
+        pakanScheduleAvailable: false,
+        pakanScheduleActive: false,
+        pakanOtomatis: false,
+        pakanUlangi: false,
+        lampScheduleAvailable: false,
+        lampScheduleActive: false,
+        lampuOtomatis: false
+      });
+      console.error('Gagal menyinkronkan jadwal otomasi dari Laravel:', error);
+    }
+  }
 
   // Satu putaran pengecekan otomasi: cek koneksi -> baca sensor -> putuskan aksi
   function runTick(){
     const st = SF.all();
     const now = SF.now();
+
+    if(!schedulesReady){
+      broadcastTick();
+      return;
+    }
 
     // Produksi: jadwal seharusnya sudah tersimpan di ESP32. Loop ini hanya
     // fallback prototype selama dashboard terbuka dan dapat dimatikan setelah firmware siap.
@@ -80,15 +138,22 @@
   function evaluateLamp(st, kondisi, now){
     // Mode Manual pada jadwal lampu berarti pengguna ingin kendali penuh,
     // sistem tidak boleh menimpa keputusan pengguna.
-    if(!st.lampuOtomatis || st.lampuMode === 'Manual' || !kondisi) return;
-    if(!st.lampuHari.includes(SF.todayAbbr(now))) return;
+    if(!st.lampuOtomatis || !st.lampScheduleActive || st.lampuMode === 'Manual' || !kondisi) return;
 
     const nowHM = SF.hhmm(now);
-    const dalamJadwal = inWindow(nowHM, st.lampuNyala, st.lampuMati);
+    const crossesMidnight = st.lampuNyala > st.lampuMati;
+    const scheduleDate = crossesMidnight && nowHM < st.lampuMati
+      ? new Date(now.getTime() - 86400000)
+      : now;
+    const hariAktif = st.lampuHari.includes(SF.todayAbbr(scheduleDate));
+    const dalamJadwal = hariAktif && inWindow(nowHM, st.lampuNyala, st.lampuMati);
     const shouldBeOn = dalamJadwal && kondisi === 'Gelap';
 
-    if(shouldBeOn !== !!st.lampuStatus && !lampInFlight){
+    const retryReady = lastLampCommand !== shouldBeOn || Date.now() - lastLampAttemptAt >= 10000;
+    if(shouldBeOn !== !!st.lampuStatus && !lampInFlight && retryReady){
       lampInFlight = true;
+      lastLampCommand = shouldBeOn;
+      lastLampAttemptAt = Date.now();
       HW.setLamp(shouldBeOn).then(res => {
         lampInFlight = false;
         if(!res.ok) return;
@@ -109,7 +174,7 @@
 
   // Mengecek apakah sekarang sudah waktunya memberi pakan otomatis
   function evaluateFeeder(st, now){
-    if(!st.pakanOtomatis || !st.pakanUlangi) return;        // fitur nonaktif
+    if(!st.pakanScheduleActive || !st.pakanOtomatis || !st.pakanUlangi) return; // jadwal database nonaktif
     if(!st.pakanHari.includes(SF.todayAbbr(now))) return;   // bukan hari yang dipilih
     if(feedingInFlight) return;                             // motor sedang bekerja
 

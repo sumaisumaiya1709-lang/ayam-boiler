@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lampuWarningBanner = document.getElementById('lampuWarningBanner');
   const nyalakanBtn = document.getElementById('nyalakanBtn');
   const saklarSub = document.getElementById('saklarSub');
+  const lampSwitch = document.getElementById('lampSwitch');
 
   // Menghitung berapa lama lampu menyala (dalam jam), dari jam nyala ke jam mati
   function calcDurasi(nyala, mati){
@@ -22,9 +23,44 @@ document.addEventListener('DOMContentLoaded', () => {
   function refreshMode(on){
     saklarSub.textContent = on ? 'Sistem otomatis aktif' : 'Kendali manual (otomatis nonaktif)';
   }
-  document.getElementById('lampSwitch').addEventListener('sf-toggle', e => {
-    refreshMode(e.detail.on);
-    showToast(e.detail.on ? 'Lampu otomatis diaktifkan' : 'Lampu otomatis dinonaktifkan');
+  lampSwitch.addEventListener('sf-toggle', async e => {
+    const active = e.detail.on;
+    SF.patch({ lampuOtomatis: !active });
+    lampSwitch.classList.toggle('on', !active);
+    lampSwitch.setAttribute('aria-checked', !active);
+    lampSwitch.disabled = true;
+
+    try {
+      const schedules = await API.getLampSchedules();
+      const schedule = Array.isArray(schedules)
+        ? schedules.find(item => Number(item.device_id) === 1)
+        : null;
+      if (!schedule) throw new Error('Jadwal lampu untuk perangkat tidak ditemukan.');
+
+      await API.updateLampSchedule(schedule.id, {
+        device_id: 1,
+        start_time: String(schedule.start_time).slice(0, 5),
+        end_time: String(schedule.end_time).slice(0, 5),
+        auto_mode: active,
+        is_active: active ? true : !!schedule.is_active,
+        days: Array.isArray(schedule.days) ? schedule.days : []
+      });
+
+      SF.patch({
+        lampuOtomatis: active,
+        lampuMode: active ? 'Otomatis' : 'Manual',
+        lampScheduleActive: active ? true : !!schedule.is_active
+      });
+      showToast(active ? 'Lampu otomatis diaktifkan' : 'Lampu otomatis dinonaktifkan');
+    } catch (error) {
+      console.error('Gagal memperbarui mode lampu:', error);
+      lampSwitch.classList.toggle('on', !active);
+      lampSwitch.setAttribute('aria-checked', !active);
+      showToast('Mode lampu gagal disimpan ke database');
+    } finally {
+      lampSwitch.disabled = false;
+      render(SF.all());
+    }
   });
 
   // Menggambar ulang daftar aktivitas khusus lampu (maksimal 5 baris terbaru)
@@ -44,10 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Menggambar ulang seluruh tampilan halaman berdasarkan data (st) terbaru
   function render(st){
-    document.getElementById('waktuNyala').textContent = `${st.lampuNyala} WIB`;
-    document.getElementById('waktuMati').textContent = `${st.lampuMati} WIB`;
-    document.getElementById('durasiText').textContent = `${calcDurasi(st.lampuNyala, st.lampuMati)} Jam`;
-    refreshMode(st.lampuOtomatis);
+    const scheduleAvailable = st.lampScheduleAvailable;
+    document.getElementById('waktuNyala').textContent = scheduleAvailable ? `${st.lampuNyala} WIB` : '--';
+    document.getElementById('waktuMati').textContent = scheduleAvailable ? `${st.lampuMati} WIB` : '--';
+    document.getElementById('durasiText').textContent = scheduleAvailable ? `${calcDurasi(st.lampuNyala, st.lampuMati)} Jam` : '--';
+    const autoActive = scheduleAvailable && st.lampScheduleActive && st.lampuOtomatis;
+    refreshMode(autoActive);
+    lampSwitch.classList.toggle('on', autoActive);
+    lampSwitch.setAttribute('aria-checked', autoActive);
 
     // Teks kondisi sensor cahaya: tanda hubung kalau hardware belum terhubung
     const hardwareOnline = st.hardwareStatus === 'ONLINE';

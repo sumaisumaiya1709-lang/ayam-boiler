@@ -28,9 +28,19 @@
   box-shadow:0 8px 16px rgba(46,139,87,.25);
 }
 
+.page-content > .two-col{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:14px;
+}
+
 .time-box{
   display:flex; flex-direction:column;
   position:relative;
+  min-width:0;
+  padding:16px 14px;
+  align-items:center;
+  text-align:center;
 }
 .time-box-label{ font-size:11px; font-weight:800; color:var(--text-muted); letter-spacing:.3px; margin-bottom:8px; }
 .time-box strong{ font-size:26px; font-weight:800; color:var(--green-dark); }
@@ -43,7 +53,7 @@
   margin-top:12px;
   padding:0;
   cursor:pointer;
-  align-self:flex-start;
+  align-self:center;
 }
 
 .day-pills{ display:flex; gap:8px; flex-wrap:wrap; }
