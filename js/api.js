@@ -3,7 +3,7 @@
  */
 const API = (() => {
   const config = {
-  baseUrl: 'http://127.0.0.1:8000',
+  baseUrl: 'https://prerequisite-vendor-availability-reducing.trycloudflare.com',
   enabled: true
   };
 
