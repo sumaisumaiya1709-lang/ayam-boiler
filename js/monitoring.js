@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const hwLastSeen =
     document.getElementById('hwLastSeen');
 
+  const sensorUpdateInfo =
+    document.getElementById('sensorUpdateInfo');
+
   const stockWarningBanner =
     document.getElementById('stockWarningBanner');
 
@@ -538,6 +541,30 @@ document.addEventListener('DOMContentLoaded', async () => {
           )}`
 
         : 'RTC DS3231: tidak terhubung';
+
+    
+      /* =====================================================
+        WAKTU PEMBARUAN DATA SENSOR
+        ===================================================== */
+
+      if (sensorUpdateInfo) {
+        const recordedAt = st.sensorRecordedAt;
+
+        if (Number.isFinite(recordedAt) && recordedAt > 0) {
+          const waktu = new Date(recordedAt);
+
+          sensorUpdateInfo.textContent =
+            `Data sensor terakhir tersimpan: ${
+              waktu.toLocaleString('id-ID', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+              })
+            }`;
+        } else {
+          sensorUpdateInfo.textContent =
+            'Belum ada waktu data sensor.';
+        }
+      }
 
 
     /* =====================================================
